@@ -82,7 +82,7 @@ class TyCBuilder:
         self.antlr_jar = f"antlr-{self.antlr_version}-complete.jar"
         self.antlr_url = f"https://www.antlr.org/download/{self.antlr_jar}"
 
-        self.python_version = "3.12"
+        self.python_version = "3.13.0"
 
         self.colors = Colors()
 
@@ -418,6 +418,44 @@ class TyCBuilder:
         )
         self.clean_cache()
 
+    def test_lexer_demo(self):
+        """Run lexer tests."""
+        if not self.build_dir.exists():
+            print(
+                self.colors.yellow("Build directory not found. Running build first...")
+            )
+            self.build_grammar()
+
+        print(self.colors.yellow("Running lexer tests..."))
+        lexer_report_dir = self.report_dir / "lexer"
+        if lexer_report_dir.exists():
+            shutil.rmtree(lexer_report_dir)
+        self.report_dir.mkdir(exist_ok=True)
+
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(self.root_dir)
+
+        self.run_command(
+            [
+                str(self.venv_python3),
+                "-m",
+                "pytest",
+                "tests/test_lexer_demo.py",
+                f"--html={lexer_report_dir}/index.html",
+                "--timeout=3",
+                "--self-contained-html",
+            ],
+            check=False,
+        )
+
+        print(
+            self.colors.green(
+                f"Lexer demo tests completed. Reports at {lexer_report_dir}/index.html"
+            )
+        )
+        self.clean_cache()
+
+
     def test_parser(self):
         """Run parser tests."""
         if not self.build_dir.exists():
@@ -451,6 +489,44 @@ class TyCBuilder:
         print(
             self.colors.green(
                 f"Parser tests completed. Reports at {parser_report_dir}/index.html"
+            )
+        )
+        self.clean_cache()
+
+
+    def test_parser_demo(self):
+        """Run parser demo tests."""
+        if not self.build_dir.exists():
+            print(
+                self.colors.yellow("Build directory not found. Running build first...")
+            )
+            self.build_grammar()
+
+        print(self.colors.yellow("Running parser tests..."))
+        parser_report_dir = self.report_dir / "parser"
+        if parser_report_dir.exists():
+            shutil.rmtree(parser_report_dir)
+        self.report_dir.mkdir(exist_ok=True)
+
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(self.root_dir)
+
+        self.run_command(
+            [
+                str(self.venv_python3),
+                "-m",
+                "pytest",
+                "tests/test_parser_demo.py",
+                f"--html={parser_report_dir}/index.html",
+                "--timeout=3",
+                "--self-contained-html",
+            ],
+            check=False,
+        )
+
+        print(
+            self.colors.green(
+                f"Parser demo tests completed. Reports at {parser_report_dir}/index.html"
             )
         )
         self.clean_cache()
@@ -493,6 +569,43 @@ class TyCBuilder:
         )
         self.clean_cache()
 
+    def test_ast_demo(self):
+        """Run AST generation tests."""
+        if not self.build_dir.exists():
+            print(
+                self.colors.yellow("Build directory not found. Running build first...")
+            )
+            self.build_grammar()
+
+        print(self.colors.yellow("Running AST generation tests..."))
+        ast_report_dir = self.report_dir / "ast"
+        if ast_report_dir.exists():
+            shutil.rmtree(ast_report_dir)
+        self.report_dir.mkdir(exist_ok=True)
+
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(self.root_dir)
+
+        self.run_command(
+            [
+                str(self.venv_python3),
+                "-m",
+                "pytest",
+                "tests/test_ast_gen_demo.py",
+                f"--html={ast_report_dir}/index.html",
+                "--timeout=5",
+                "--self-contained-html",
+                "-v",
+            ],
+            check=False,
+        )
+
+        print(
+            self.colors.green(
+                f"AST generation demo tests completed. Reports at {ast_report_dir}/index.html"
+            )
+        )
+        self.clean_cache()
 
 def main():
     """Main entry point."""
@@ -515,8 +628,11 @@ def main():
             "clean-reports",
             "clean-venv",
             "test-lexer",
+            "test-lexer-demo",
             "test-parser",
+            "test-parser-demo",
             "test-ast",
+            "test-ast-demo",
         ],
         help="Command to execute",
     )
@@ -537,6 +653,9 @@ def main():
         "test-lexer": builder.test_lexer,
         "test-parser": builder.test_parser,
         "test-ast": builder.test_ast,
+        "test-lexer-demo": builder.test_lexer_demo,
+        "test-parser-demo": builder.test_parser_demo,
+        "test-ast-demo": builder.test_ast_demo,
     }
 
     if args.command in commands:
