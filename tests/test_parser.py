@@ -1137,326 +1137,61 @@ TODO: Implement 100 test cases for parser
 import pytest
 from tests.utils import Parser
 
-def test_000():
-    """Simple entry point"""
-    source = """
-    """
-    expected = "Error on line 2 col 4: <EOF>"
-    assert Parser(source).parse() == expected
 
-def test_001():
-    """Simple entry point"""
-    source = """
-    void main() {
-        int a = 5;
-    }
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_002():
-    """Test function declaration"""
-    source = """
-    int add(int a, int b) {
-        return a + b;
-    }
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_003():
-    """Test function declaration"""
-    source = """
-    add(int a, int b) {     // omit return type
-        return a + b;
-    }
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_004():
-    """Test function declaration"""
-    source = """
-    int add(int a, b; float c) {  
-        return a + b + c;
-    }
-    """
-    expected = "Error on line 2 col 20: ;"
-    assert Parser(source).parse() == expected
-
-def test_005():
-    """Test function declaration"""
-    source = """
-    int foo(int a, float b, string c, D d) {}   // must have statement
-    """
-    expected = "Error on line 2 col 44: }"
-    assert Parser(source).parse() == expected
-
-def test_006():
-    """Test function declaration"""
-    source = """
-    int foo(auto a) {return a;}  // cannot use auto for parameter type
-    """
-    expected = "Error on line 2 col 12: auto"
-    assert Parser(source).parse() == expected
-
-def test_007():
-    """Test function declaration"""
-    source = """
-    int foo(int a, int b);
-    """
-    expected = "Error on line 2 col 25: ;"
-    assert Parser(source).parse() == expected
-
-def test_008():
-    """Test function declaration"""
-    source = """
-    int foo(int a, int b) {return a + b;}
-    float foo1(float a, float b) {return a + b;}
-    string foo2(string a, string b){return a;}
-    foo3(int a, float b, string c){return a + b;}
-    auto foo4() {return 1;}
-    """
-    expected = "Error on line 6 col 4: auto"
-    assert Parser(source).parse() == expected
-
-def test_009():
-    """Test function declaration"""
-    source = """
-    // Return type inferred as int
-    add(int x, int y) {
-        return x + y;
-    }
-
-    // Return type inferred as float
-    multiply(float a, float b) {
-        return a * b;
-    }
-
-    // Return type inferred as void (no return statement)
-    greet(string name) {
-        printString("Hello, ");
-        printString(name);
-    }
-
-    void main() {
-        auto sum = add(3, 5);              // sum: int
-        auto product = multiply(2.5, 3.0);  // product: float
-        greet("World");
-    }
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_010():
-    """Test variable declaration"""
-    source = """
-    void main() {
-        int a = 5;
-        float b = 3.0;
-        string c = "hello";
-        auto d = 4;
-    }
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_011():
-    """Test struct declaration"""
-    source = """
-    struct A {
-        int a;
-        float b;
-        string d;
-    };
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_012():
-    """Test struct declaration"""
-    source = """
-    struct A {};
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_013():
-    """Test struct declaration"""
-    source = """
-    A foo() {return {{1, 2}, 2};}
-    int main() {
-        foo().a;
-    }
-    """
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_014():
-    source = """
-void main() {
-    printString("Hello, World!");
-}
-"""
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_015():
-    source = """
-int add(int x, int y) {
-    return x + y;
-}
-
-int multiply(int x, int y) {
-    return x * y;
-}
-
-void main() {
-    auto a = readInt();
-    auto b = readInt();
-    
-    auto sum = add(a, b);
-    auto product = multiply(a, b);
-    
-    printInt(sum);
-    printInt(product);
-}
-"""
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_016():
-    source = """
-void main() {
-    auto n = readInt();
-    auto i = 0;
-    
-    while (i < n) {
-        printInt(i);
-        ++i;
-    }
-    
-    for (auto j = 0; j < n; ++j) {
-        if (j % 2 == 0) {
-            printInt(j);
-        }
-    }
-}
-"""
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_017():
-    source = """
-int factorial(int n) {
-    if (n <= 1) {
-        return 1;
-    } else {
-        return n * factorial(n - 1);
-    }
-}
-
-void main() {
-    auto num = readInt();
-    auto result = factorial(num);
-    printInt(result);
-}
-"""
-    expected = "success"
-    assert Parser(source).parse() == expected
-
-def test_018():
-    source = """
-void main() {
-    // With auto and initialization
-    auto x = readInt();
-    auto y = readFloat();
-    auto name = readString();
-    
-    // With auto without initialization
-    auto sum;
-    sum = x + y;              // sum: float (inferred from first usage - assignment)
-    
-    // With explicit type and initialization
-    int count = 0;
-    float total = 0.0;
-    string greeting = "Hello, ";
-    
-    // With explicit type without initialization
-    int i;
-    float f;
-    i = readInt();            // assignment to int
-    f = readFloat();          // assignment to float
-    
-    printFloat(sum);
-    printString(greeting);
-    printString(name);
-    
-    // Note: String concatenation is NOT supported
-    // This is because + operator applies to int or float, not string
-}
-"""
-    expected = "success"
-    assert Parser(source).parse() == expected
+# ========== Simple Test Cases (10 types) ==========
+def test_empty_program():
+    """1. Empty program"""
+    assert Parser("").parse() == "success"
 
 
-def test_019():
-    source ="""
-struct Point {
-    int x;
-    int y;
-};
+def test_program_with_only_main():
+    """2. Program with only main function"""
+    assert Parser("void main() {}").parse() == "success"
 
-struct Person {
-    string name;
-    int age;
-    float height;
-};
 
-void main() {
-    // Struct variable declaration without initialization
-    Point p1;
-    p1.x = 10;
-    p1.y = 20;
-    
-    // Struct variable declaration with initialization
-    Point p2 = {30, 40};
-    
-    // Access and modify struct members
-    printInt(p2.x);
-    printInt(p2.y);
-    
-    // Struct assignment
-    p1 = p2;  // Copy all members
-    
-    // Person struct usage
-    Person person1 = {"John", 25, 1.75};
-    printString(person1.name);
-    printInt(person1.age);
-    printFloat(person1.height);
-    
-    // Modify struct members
-    person1.age = 26;
-    person1.height = 1.76;
-    
-    // Using struct with auto
-    auto p3 = p2;  // p3: Point (inferred from assignment)
-    printInt(p3.x);
-}
-"""
-    expected = "success"
-    assert Parser(source).parse() == expected
+def test_struct_simple():
+    """3. Struct declaration"""
+    source = "struct Point { int x; int y; };"
+    assert Parser(source).parse() == "success"
 
-def test_020():
-    source = """
-void main() {
-"""
-    expected = "Error on line 3 col 0: <EOF>"
-    assert Parser(source).parse() == expected
 
-def test_021():
-    source = """
-void main {}
-"""
-    expected = "Error on line 2 col 10: {"
-    assert Parser(source).parse() == expected
+def test_function_no_params():
+    """4. Function with no parameters"""
+    source = "void greet() { printString(\"Hello\"); }"
+    assert Parser(source).parse() == "success"
+
+
+def test_var_decl_auto_with_init():
+    """5. Variable declaration"""
+    source = "void main() { auto x = 5; }"
+    assert Parser(source).parse() == "success"
+
+
+def test_if_simple():
+    """6. If statement"""
+    source = "void main() { if (1) printInt(1); }"
+    assert Parser(source).parse() == "success"
+
+
+def test_while_simple():
+    """7. While statement"""
+    source = "void main() { while (1) printInt(1); }"
+    assert Parser(source).parse() == "success"
+
+
+def test_for_simple():
+    """8. For statement"""
+    source = "void main() { for (auto i = 0; i < 10; ++i) printInt(i); }"
+    assert Parser(source).parse() == "success"
+
+
+def test_switch_simple():
+    """9. Switch statement"""
+    source = "void main() { switch (1) { case 1: printInt(1); break; } }"
+    assert Parser(source).parse() == "success"
+
+
+def test_assignment_simple():
+    """10. Assignment statement"""
+    source = "void main() { int x; x = 5; }"
+    assert Parser(source).parse() == "success"

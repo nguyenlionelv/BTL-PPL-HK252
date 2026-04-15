@@ -26,7 +26,7 @@ Despite its simplicity, TyC includes most important features of a procedural pro
 
 ## Program Structure
 
-As its simplicity, a TyC compiler does not support compiling many files, so a TyC program is written in just one file only. A TyC program consists of a sequence of struct declarations and function declarations.
+As its simplicity, a TyC compiler does not support compiling many files, so a TyC program is written in just one file only. A TyC program consists of a (possibly empty) sequence of struct declarations and function declarations.
 
 The entry point of a TyC program is a function named `main` that takes no parameters and returns `void`. Each such function in a TyC program is an entry point of the program.
 
@@ -44,7 +44,7 @@ Where:
 - `<return_type>` is a type which is described in Section 4, or can be omitted for inferred return type
 - `<identifier>` is the function name
 - `<parameter_list>` is a comma-separated list of parameter declarations (or empty)
-- `<statement_list>` is a sequence of statements
+- `<statement_list>` is a (possibly empty) sequence of statements, as defined in [Statements](#statements)
 
 A parameter declaration has the form:
 
@@ -53,8 +53,6 @@ A parameter declaration has the form:
 ```
 
 where `<identifier>` is the parameter name and `<type>` must be an explicit type (`int`, `float`, `string`, or a struct type name). **Note:** Parameters cannot use `auto` for type inference - the type must be explicitly declared.
-
-The `<statement_list>` will be described in [Statements](#statements).
 
 **Function Overloading:** TyC does not support function overloading. In a TyC program, function names must be unique - there cannot be two functions with the same name, regardless of their parameter types or return types. This restriction simplifies type inference, as the type of a function call can be determined solely by the function name without needing to consider multiple function signatures with different parameter types.
 
@@ -216,6 +214,8 @@ Float literals are of type **float**.
 \\   backslash (ASCII 92)
 ```
 
+Only these escape sequences are valid. Hex escapes such as `\x01` or `\x80` are not supported and will cause an `ILLEGAL_ESCAPE` error; unprintable and extended ASCII characters may be written directly in the source when the editor allows.
+
 **String Token Processing:**
 - When a valid string literal is recognized, the lexer automatically removes (strips) the enclosing double quotes from both ends. The token value contains only the string content without the quotes.
 - For error cases (`ILLEGAL_ESCAPE` and `UNCLOSE_STRING`), the lexer removes the opening double quote, but the error message includes the problematic content.
@@ -227,8 +227,6 @@ The lexer checks for errors in the following order (first match wins):
 2. **Unclosed strings** are detected if the string literal is not closed before encountering a newline, carriage return, or end of file.
 3. If neither error occurs, a **valid string literal** is recognized.
 
-For example, `"Hello \a World"` will be detected as an `ILLEGAL_ESCAPE` error because `\a` is an illegal escape sequence (detected before checking if the string is closed).
-
 It is a compile-time error for:
 - A newline (`\n`) or carriage return (`\r`) character to appear directly (unescaped) inside a string literal.
 - An EOF character to appear inside a string literal (i.e., the string literal is not closed before end of file).
@@ -239,8 +237,6 @@ The following are valid examples of string literals:
 "This is a string containing tab \t"
 "He asked me: \"Where is John?\""
 ""
-"String with unprintable: \x01"  // Character with code 1 can appear directly
-"Extended ASCII: \x80\xFF"        // Extended ASCII characters (128-255) are allowed
 ```
 
 A string literal has a type of **string**.
@@ -356,11 +352,13 @@ Person person2 = {"John", 25, 1.75};  // initialized: name="John", age=25, heigh
 
 #### Struct Member Access
 
-Struct members are accessed using the dot (`.`) operator:
+Struct members are accessed using the dot (`.`) operator. The left-hand side may be any expression that evaluates to a struct type (e.g., a variable, a function call that returns a struct, or a parenthesized expression):
 
 ```tyc
-<struct_variable>.<member_name>
+<expr>.<member_name>
 ```
+
+where `<expr>` must have a struct type and `<member_name>` must be a member of that struct.
 
 For example:
 ```tyc
@@ -370,6 +368,8 @@ auto x_coord = p.x; // read member x
 printInt(p.x);      // use member x in expression
 p.x++;              // increment member x (parsed as (p.x)++)
 ```
+
+If a function returns a struct, its result can be used in member access: `getPoint().x` is valid when `getPoint()` returns a struct type with member `x`.
 
 #### Struct Operations
 
@@ -543,7 +543,7 @@ The order of precedence for operators is listed from highest to lowest:
 | **Operator** | **Associativity** |
 |--------------|-------------------|
 | `.` (member access) | left |
-| `++`, `--` (postfix) | left |
+| `++`, `--` (postfix), `()` (function call) | left |
 | `++`, `--` (prefix) | right |
 | `!`, `-` (unary), `+` (unary) | right |
 | `*`, `/`, `%` | left |
@@ -565,6 +565,8 @@ Every operand of an operator must be evaluated before any part of the operation 
 ## Statements
 
 A statement, which does not return anything (except return statement), indicates the action a program performs. There are many kinds of statements, as described as follows. Note that a semicolon (`;`) by itself does not constitute a valid statement; it must be part of a complete statement such as an expression statement, variable declaration, or other statement types.
+
+**Statement list:** A `<statement_list>` is a (possibly empty) sequence of statements. This applies wherever a statement list appears: in a function body, in a block, or within each `case` or `default` of a switch statement. An empty statement list (e.g. `{ }`) is valid.
 
 ### Variable Declaration Statement
 
@@ -716,7 +718,7 @@ Where:
 - Each `case` label must be followed by a colon (`:`)
 - The `default` clause is **optional** and can appear anywhere within the switch statement. **At most one `default` clause is allowed** - if multiple `default` clauses are present, it is a compile-time error.
 - The switch body can be empty (no case statements and no default clause): `switch (x) { }`
-- `<statement_list>` within each case or default can be empty or contain one or more statements
+- `<statement_list>` within each case or default is as defined in [Statements](#statements) (possibly empty)
 - Like C, **TyC switch statements have fall-through behavior** - execution continues to the next case unless a `break` statement is used
 
 **Important:** In TyC, switch statements follow C-style fall-through behavior. Execution will fall through to subsequent cases unless explicitly terminated with a `break` statement. You can use multiple case labels for the same code block to handle multiple values.
@@ -1234,7 +1236,7 @@ void main() {
 
 ## Grammar Summary
 
-A TyC program consists of a sequence of struct declarations and function declarations.
+A TyC program consists of a (possibly empty) sequence of struct declarations and function declarations.
 
 **Struct Declarations:**
 - Each struct declaration defines a new composite type with named members
@@ -1261,10 +1263,10 @@ The main structural elements include:
 - **Variable Declaration**: Can use `auto` for type inference or explicit types (`int`, `float`, `string`, or struct type names)
 - **Literals**: Integer, floating-point, and string literals
 
-**Operator Precedence** (as specified in the Expressions section):
-1. Postfix operators (`++`, `--`)
-2. Prefix/unary operators (`!`, `-`, `+`, `++`, `--`)
-3. Member access (`.`)
+**Operator Precedence** (as specified in the Expressions section, highest to lowest):
+1. Member access (`.`)
+2. Postfix operators (`++`, `--`)
+3. Prefix/unary operators (`!`, `-`, `+`, `++`, `--`)
 4. Multiplicative (`*`, `/`, `%`)
 5. Additive (`+`, `-`)
 6. Relational (`<`, `<=`, `>`, `>=`)

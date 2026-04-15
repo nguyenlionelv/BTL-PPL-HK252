@@ -58,20 +58,26 @@ class Tokenizer:
         self.source_code = source_code
 
     def get_tokens_as_string(self) -> str:
-        """Get tokens as comma-separated string"""
+        """Get tokens as comma-separated string (only token text)"""
         input_stream = InputStream(self.source_code)
         lexer = TyCLexer(input_stream)
-        token_stream = CommonTokenStream(lexer)
-        token_stream.fill()
 
         tokens = []
-        for token in token_stream.tokens:
-            if token.type != -1:  # EOF
-                token_name = lexer.symbolicNames[token.type]
-                token_text = token.text if token.text else ""
-                tokens.append(f"{token_name},{token_text}")
+        try:
+            while True:
+                token = lexer.nextToken()
+                if token.type == -1:  # EOF
+                    tokens.append("<EOF>")
+                    break
+                tokens.append(token.text if token.text else "")
+        except Exception as e:
+            # If we already have some tokens, append error message
+            if tokens:
+                tokens.append(str(e))
+            else:
+                # If no tokens yet, just return error message
+                return str(e)
 
-        tokens.append("EOF")
         return ",".join(tokens)
 
 
