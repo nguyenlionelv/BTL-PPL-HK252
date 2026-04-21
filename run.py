@@ -192,7 +192,12 @@ class TyCBuilder:
         )
         print(
             self.colors.yellow(
-                "  python3 run.py test-ast    - Run AST generation tests and generate reports"
+                "  python3 run.py test-ast      - Run AST generation tests and generate reports"
+            )
+        )
+        print(
+            self.colors.yellow(
+                "  python3 run.py test-checker - Run semantic checker tests (Assignment 3)"
             )
         )
         print()
@@ -569,18 +574,18 @@ class TyCBuilder:
         )
         self.clean_cache()
 
-    def test_ast_demo(self):
-        """Run AST generation tests."""
+    def test_checker(self):
+        """Run static semantic checker tests (Assignment 3)."""
         if not self.build_dir.exists():
             print(
                 self.colors.yellow("Build directory not found. Running build first...")
             )
             self.build_grammar()
 
-        print(self.colors.yellow("Running AST generation tests..."))
-        ast_report_dir = self.report_dir / "ast"
-        if ast_report_dir.exists():
-            shutil.rmtree(ast_report_dir)
+        print(self.colors.yellow("Running semantic checker tests..."))
+        checker_report_dir = self.report_dir / "checker"
+        if checker_report_dir.exists():
+            shutil.rmtree(checker_report_dir)
         self.report_dir.mkdir(exist_ok=True)
 
         env = os.environ.copy()
@@ -591,9 +596,9 @@ class TyCBuilder:
                 str(self.venv_python3),
                 "-m",
                 "pytest",
-                "tests/test_ast_gen_demo.py",
-                f"--html={ast_report_dir}/index.html",
-                "--timeout=5",
+                "tests/test_checker.py",
+                f"--html={checker_report_dir}/index.html",
+                "--timeout=10",
                 "--self-contained-html",
                 "-v",
             ],
@@ -602,10 +607,11 @@ class TyCBuilder:
 
         print(
             self.colors.green(
-                f"AST generation demo tests completed. Reports at {ast_report_dir}/index.html"
+                f"Checker tests completed. Reports at {checker_report_dir}/index.html"
             )
         )
         self.clean_cache()
+
 
 def main():
     """Main entry point."""
@@ -632,7 +638,7 @@ def main():
             "test-parser",
             "test-parser-demo",
             "test-ast",
-            "test-ast-demo",
+            "test-checker",
         ],
         help="Command to execute",
     )
@@ -653,9 +659,7 @@ def main():
         "test-lexer": builder.test_lexer,
         "test-parser": builder.test_parser,
         "test-ast": builder.test_ast,
-        "test-lexer-demo": builder.test_lexer_demo,
-        "test-parser-demo": builder.test_parser_demo,
-        "test-ast-demo": builder.test_ast_demo,
+        "test-checker": builder.test_checker,
     }
 
     if args.command in commands:

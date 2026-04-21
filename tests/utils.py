@@ -15,6 +15,8 @@ from build.TyCLexer import TyCLexer
 from build.TyCParser import TyCParser
 from antlr4 import InputStream, CommonTokenStream
 from src.utils.error_listener import NewErrorListener
+from src.semantics.static_checker import StaticChecker
+from src.astgen.ast_generation import ASTGeneration
 
 
 class ASTGenerator:
@@ -30,8 +32,6 @@ class ASTGenerator:
         self.parser.addErrorListener(NewErrorListener.INSTANCE)
         # Import here to avoid circular dependency issues during build
         try:
-            from src.astgen.ast_generation import ASTGeneration
-
             self.ast_generator = ASTGeneration()
         except ImportError:
             self.ast_generator = None
@@ -99,5 +99,34 @@ class Parser:
         try:
             tree = parser.program()
             return "success"
+        except Exception as e:
+            return str(e)
+
+
+class Checker:
+    """Class to perform static checking on the AST."""
+
+    def __init__(self, source=None, ast=None):
+        self.source = source
+        self.ast = ast
+        self.checker = StaticChecker()
+
+    def check_from_ast(self):
+        """Perform static checking on the AST."""
+        try:
+            self.checker.check_program(self.ast)
+            return "Static checking passed"
+        except Exception as e:
+            return str(e)
+
+    def check_from_source(self):
+        """Perform static checking on the source code."""
+        try:
+            ast_gen = ASTGenerator(self.source)
+            self.ast = ast_gen.generate()
+            if isinstance(self.ast, str):  # If AST generation failed
+                return self.ast
+            self.checker.check_program(self.ast)
+            return "Static checking passed"
         except Exception as e:
             return str(e)
