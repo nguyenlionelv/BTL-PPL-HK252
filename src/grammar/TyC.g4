@@ -25,25 +25,25 @@ options{
 }
 
 // TODO: Define grammar rules here
-program: decl+ EOF;
+program: decl* EOF;
 decl: structdecl | funcdecl;
 
 structdecl: STRUCT ID LB structvarlist RB SEMI;
 structvarlist: stype ID SEMI structvarlist |;
 
-funcdecl: (ftype func) | func;
+funcdecl: ftype func;
 func: ID LP paramlist RP blockstmt;
 paramlist: parameters |;
 parameters: param CM parameters | param;
 param: stype ID;
 
+// block stmt
 blockstmt: LB stmtlist RB;
-stmtlist: stmt stmtlist | stmt;
-stmt: (vardeclstmt SEMI)| ifstmt | whilestmt | forstmt | switchstmt | (controlstmt SEMI) | (exprstmt SEMI);
+stmtlist: stmt stmtlist | ;
+stmt: (vardeclstmt SEMI)| ifstmt | whilestmt | forstmt | switchstmt | (controlstmt SEMI) | (exprstmt SEMI) | blockstmt;
 
 // vardeclare
-vardeclstmt: vtype vardecl ;
-vardecl: var CM vardecl | var ;
+vardeclstmt: vtype var;
 var: ID ASS expr | ID;
 
 // if
@@ -54,16 +54,16 @@ whilestmt: WHILE LP expr RP (blockstmt | stmt);
 
 // for
 forstmt: FOR LP init SEMI condition SEMI update RP (blockstmt | stmt);
-init: (vardeclstmt | assignstmt) CM init | (vardeclstmt | assignstmt) |;
+init: vardeclstmt | assignstmt |;
 condition: expr |;
-update: expr |;
+update: assignstmt | prefix | postfix |;
 
 // switch
 switchstmt: SWITCH LP expr RP LB casestmt defaultstmt RB;
 casestmt: caselist |;
 caselist: case caselist | case;
-case: CASE expr ':' stmtlist;
-defaultstmt: (DEFAULT ':' stmtlist) |;
+case: CASE expr COLON stmtlist;
+defaultstmt: (DEFAULT COLON stmtlist) |;
 
 // controlstmt
 controlstmt: breakstmt | continuestmt | returnstmt;
@@ -72,7 +72,7 @@ continuestmt: CONTINUE;
 returnstmt: RETURN expr | RETURN;
 
 // exprstmt
-exprstmt: assignstmt | callstmt | prefixstmt;
+exprstmt: assignstmt | callstmt | expr;
 assignstmt: assignvar ASS expr;
 assignvar: ID DOT assignvar | ID;
 callstmt: ID LP callparam RP;
@@ -86,11 +86,11 @@ logicAND: logicAND AND eqcompare | eqcompare;
 eqcompare: eqcompare (EQ|NEQ) relop | relop;
 relop: relop (LETH|GRTH|LTE|GTE) additive | additive;
 additive: additive (PLUS|MINUS) multiple | multiple;
-multiple: multiple (MUL|DIV|MOD) prefixstmt | prefixstmt;
-prefixstmt: (INC | DEC | NOT | MINUS | PLUS) prefixstmt | postfix;
-postfix: postfix (INC|DEC) | memberaccess;
-memberaccess: memberaccess DOT ID | primary;
-primary: LP expr RP | ID | INTLITERAL | FLOATLITERAL | STRINGLITERAL | LB exprlist RB | callstmt;
+multiple: multiple (MUL|DIV|MOD) unary | unary;
+unary: (NOT|MINUS|PLUS) unary | prefix;
+prefix: (INC|DEC) prefix | postfix;
+postfix: postfix DOT ID | postfix ((LP callparam RP) | (INC|DEC)) | primary;
+primary: LP expr RP | ID | INTLITERAL | FLOATLITERAL | STRINGLITERAL | LB exprlist RB;
 
 
 exprlist: nonemptyexprlist|;
@@ -98,7 +98,7 @@ nonemptyexprlist: expr CM nonemptyexprlist | expr;
 
 stype: INTEGER | FLOAT | STRING | ID;
 vtype: INTEGER | FLOAT | STRING | AUTO | ID;
-ftype: INTEGER | FLOAT | STRING | VOID | ID;
+ftype: INTEGER | FLOAT | STRING | VOID | ID |;
 
 
 // KEYWORDS
@@ -158,20 +158,26 @@ LP: '(';
 RP: ')';
 SEMI: ';';
 CM: ',';
+COLON: ':';
 
 // LITERAL
-INTLITERAL: '0' | [1-9][0-9]*;
-FLOATLITERAL: FPART EPART;
+INTLITERAL: [0-9]+;
+FLOATLITERAL: FLOAT_HAS_POINT | FLOAT_NON_POINT;
 STRINGLITERAL: '"' STRING_CHAR* '"' {
-    self.text = self.text.replace('"', '')
+    self.text = self.text[1:-1]
 };
 
 // FRAGMENTS
 fragment DIGIT: [0-9];
-fragment FPART: (DIGIT+ '.' DIGIT*) | ('.' DIGIT+) ;
-fragment EPART: ([eE] [+-]? DIGIT+)? ;
-fragment STRING_CHAR: ~["\\] | ESC_SEQ;
+// fragment FPART: (DIGIT+ '.' DIGIT*) | ('.' DIGIT+) ;
+// fragment EPART: ([eE] [+-]? DIGIT+)? ;
+fragment STRING_CHAR: ~["\\\r\n] | ESC_SEQ;
 fragment ESC_SEQ: '\\' [bfrnt"\\];
+
+fragment FLOAT_HAS_POINT: FLOAT_E | FLOAT_NE;
+fragment FLOAT_NE: (DIGIT+ '.' DIGIT*) | ('.' DIGIT+);
+fragment FLOAT_E: (DIGIT* '.' DIGIT+ [eE] [+-]? DIGIT+) | (DIGIT+ '.' [eE] [+-]? DIGIT+);
+fragment FLOAT_NON_POINT: DIGIT+ [eE] [+-]? DIGIT+;
 
 
 // COMMENT
@@ -180,10 +186,14 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
 
 // WHITESPACE
-WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs
+WS : [ \t\f\r\n]+ -> skip ; // skip spaces, tabs
 
 // ERROR
+ILLEGAL_ESCAPE: '"' (~["\\\n\r] | ESC_SEQ)* '\\' ~[bfrnt"\\\n\r] {
+    self.text = self.text[1:]
+};
+UNCLOSE_STRING: '"' (~["\\\r\n] | ESC_SEQ)* {
+    self.text = self.text[1:]
+};
 ERROR_CHAR: .;
-ILLEGAL_ESCAPE: '"' (~["\\] | '\\' [bfrnt"\\])* '\\' ~[bfrnt"\\];
-UNCLOSE_STRING: '"' (~["\\\r\n] | ESC_SEQ)* ([\r\n] | EOF);
 

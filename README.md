@@ -164,6 +164,46 @@ The `StaticChecker` class must:
 
 ---
 
+## Assignment 4 - Code Generation
+
+### Required Tasks to Complete
+
+1. **Study code generation components**
+
+   - Read `src/codegen/codegen.py`, `src/codegen/emitter.py`, and helper files in `src/codegen/`
+   - Understand the runtime support in `src/runtime/io.java` and `src/runtime/jasmin.jar`
+   - Understand the output flow: `AST -> .j -> .class -> run on JVM`
+
+2. **Implement code generation**
+
+   - Complete `CodeGenerator` in `src/codegen/codegen.py`
+   - Complete `Emitter` in `src/codegen/emitter.py`
+   - Generate correct Jasmin code for TyC programs
+
+3. **Write test cases for Assignment 4**
+
+   - Implement **100 test cases** in `tests/test_codegen.py`
+   - Cover basic and advanced language constructs
+   - Verify output of generated programs
+
+### Code Generation Requirements
+
+The Assignment 4 implementation must:
+
+- **Traverse AST with ASTVisitor** and emit code for declarations, statements, and expressions
+- **Generate valid Jasmin code** that can be assembled and executed
+- **Support built-in I/O functions** through runtime class `io`
+- **Manage stack, local variables, and labels** correctly during code generation
+
+### Evaluation Criteria
+
+- **Code Generation Implementation**: Correctness and completeness of `CodeGenerator` and `Emitter`
+- **Runtime Execution**: Generated code assembles and runs correctly on JVM
+- **Test Coverage**: Quality and comprehensiveness of code generation test cases
+- **Output Correctness**: Program outputs match expected results in tests
+
+---
+
 ## Project Structure
 
 ```
@@ -191,12 +231,24 @@ The `StaticChecker` class must:
 │   │   ├── __init__.py
 │   │   ├── static_checker.py   # StaticChecker — student implementation
 │   │   └── static_error.py     # Semantic error exception classes (predefined)
+│   ├── codegen/          # Code generation (Assignment 4)
+│   │   ├── codegen.py    # CodeGenerator — student implementation
+│   │   ├── emitter.py    # Emitter helpers — student implementation
+│   │   ├── frame.py      # Frame management
+│   │   ├── jasmin_code.py
+│   │   ├── io.py
+│   │   ├── utils.py
+│   │   └── error.py
+│   └── runtime/          # Runtime support for Assignment 4
+│       ├── io.java
+│       └── jasmin.jar
 └── tests/                # Test suite
     ├── test_lexer.py     # Lexer tests
     ├── test_parser.py    # Parser tests
     ├── test_ast_gen.py   # AST generation tests
     ├── test_checker.py   # Semantic analysis tests (Assignment 3)
-    └── utils.py          # Testing utilities (Tokenizer, Parser, ASTGenerator, Checker)
+    ├── test_codegen.py   # Code generation tests (Assignment 4)
+    └── utils.py          # Testing utilities (Tokenizer, Parser, ASTGenerator, Checker, CodeGenerator)
 ```
 
 ## Quick Start
@@ -243,6 +295,7 @@ The `StaticChecker` class must:
    python3 run.py test-parser
    python3 run.py test-ast
    python3 run.py test-checker
+   python3 run.py test-codegen
    ```
 
 ## Available Commands
@@ -254,6 +307,7 @@ The `StaticChecker` class must:
 - `python3 run.py test-parser` - Run parser tests
 - `python3 run.py test-ast` - Run AST generation tests
 - `python3 run.py test-checker` - Run semantic checker tests (Assignment 3)
+- `python3 run.py test-codegen` - Run code generation tests (Assignment 4)
 - `python3 run.py clean` - Clean build files
 
 ## License

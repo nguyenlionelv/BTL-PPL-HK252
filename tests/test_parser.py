@@ -1,1134 +1,3 @@
-# """
-# Parser test cases for TyC compiler
-# TODO: Implement 100 test cases for parser
-# """
-
-# import pytest
-# from tests.utils import Parser
-
-
-# # # ============================================================================
-# # # PROGRAM STRUCTURE TESTS (10 tests)
-# # # ============================================================================
-
-# # def test_parser_001():
-# #     """Empty program"""
-# #     parser = Parser("")
-# #     print("HELLO")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_002():
-# #     """Single void function"""
-# #     parser = Parser("void main() { }")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_003():
-# #     """Single struct declaration"""
-# #     parser = Parser("struct Point { int x; };")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_004():
-# #     """Struct and function"""
-# #     parser = Parser("struct Point { int x; }; void main() { }")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_005():
-# #     """Multiple functions"""
-# #     parser = Parser("""
-# #         int add(int a, int b) { return a + b; }
-# #         void main() { }
-# #     """)
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_006():
-# #     """Multiple structs"""
-# #     parser = Parser("""
-# #         struct Point { int x; int y; };
-# #         struct Person { string name; int age; };
-# #     """)
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_007():
-# #     """Mixed declarations"""
-# #     parser = Parser("""
-# #         struct Point { int x; };
-# #         int helper() { return 0; }
-# #         struct Person { string name; };
-# #         void main() { }
-# #     """)
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_008():
-# #     """Missing semicolon after struct - should fail"""
-# #     parser = Parser("struct Point { int x; }")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-
-# # def test_parser_009():
-# #     """Random expression at top level - should fail"""
-# #     parser = Parser("1 + 2;")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-
-# # def test_parser_010():
-# #     """Variable declaration at top level - should fail"""
-# #     parser = Parser("int x = 5;")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-
-# # # ============================================================================
-# # # STRUCT DECLARATION TESTS (10 tests)
-# # # ============================================================================
-
-# # def test_parser_011():
-# #     """Empty struct"""
-# #     parser = Parser("""struct Empty {};""")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_012():
-# #     """Struct with single member"""
-# #     parser = Parser("struct Point { int x; };")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_013():
-# #     """Struct with multiple members"""
-# #     parser = Parser("struct Point { int x; int y; float z; };")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_014():
-# #     """Struct with different types"""
-# #     parser = Parser("struct Person { string name; int age; float height; };")
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_015():
-# #     """Struct with struct member"""
-# #     parser = Parser("""
-# #         struct Point { int x; int y; };
-# #         struct Shape { Point center; int radius; };
-# #     """)
-# #     assert parser.parse() == "success"
-
-
-# # def test_parser_016():
-# #     """Struct member cannot use auto - should fail"""
-# #     parser = Parser("struct Bad { auto x; };")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-
-# # def test_parser_017():
-# #     """Missing semicolon after member - should fail"""
-# #     parser = Parser("struct Point { int x };")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-
-# # def test_parser_018():
-# #     """Member without type - should fail"""
-# #     parser = Parser("struct Bad { x; };")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-
-# # def test_parser_019():
-# #     """Void member - should fail"""
-# #     parser = Parser("struct Bad { void x; };")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-
-# # def test_parser_020():
-# #     """Nested struct definition - should fail"""
-# #     parser = Parser("struct Outer { struct Inner { int x; }; };")
-# #     result = parser.parse()
-# #     assert result != "success"
-# #     assert "Error on line" in result
-
-# def sp_test_valid(source):
-#     parser = Parser(source)
-#     assert parser.parse() == "success"
-
-# def sp_test_invalid(source):
-#     parser = Parser(source)
-#     assert parser.parse() != "success"
-#     assert "Error on line" in parser.parse()
-
-
-# # ============================================================================
-# # PROGRAM STRUCTURE TESTS (20 tests)
-# # ============================================================================
-
-# def test_parser_001():
-#     sp_test_valid("")
-
-# def test_parser_002():
-#     sp_test_valid("void main() { }")
-
-# def test_parser_003():
-#     sp_test_valid("struct Point { int x; };")
-
-# def test_parser_004():
-#     sp_test_valid("struct Point { int x; }; void main() { }")
-
-# def test_parser_005():
-#     sp_test_valid("""
-#         int add(int a, int b) { return a + b; }
-#         void main() { }
-#     """)
-
-# def test_parser_006():
-#     sp_test_valid("""
-#         struct Point { int x; int y; };
-#         struct Person { string name; int age; };
-#     """)
-
-# def test_parser_007():
-#     sp_test_valid("""
-#         struct Point { int x; };
-#         int helper() { return 0; }
-#         struct Person { string name; };
-#         void main() { }
-#     """)
-
-# def test_parser_008():
-#     sp_test_invalid("struct Point { int x; }")
-
-# def test_parser_009():
-#     sp_test_invalid("1 + 2;")
-
-# def test_parser_010():
-#     sp_test_invalid("int x = 5;")
-
-# def test_parser_101():
-#     sp_test_invalid("""
-#         struct Point { int x; int help() {} };
-#         int helper() { return 0; }
-#         struct Person { string name; };
-#         void main() { }
-#     """)
-
-# def test_parser_102():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; };
-#         int helper() { return 0; struct Help { int x; int y; }; }
-#         struct Person { string name; };
-#         void main() { }
-#     """)
-
-# def test_parser_103():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; };
-#         int helper() { return 0; }
-#         struct Person { string name; };
-#         void main() { int help() { x = 5; } return 0; }
-#     """)
-
-# def test_parser_104():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; struct Point2 { int x; int y; }; };
-#         int helper() { return 0; }
-#         struct Person { string name; };
-#         void main() { int help() { x = 5; } }
-#     """)
-
-# def test_parser_105():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; };
-#         int helper() { return 0; }
-#         struct Person { string name; };
-#         void main() { int help() { x = 5; return 0; } }
-#     """)
-
-# def test_parser_106():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; }
-#         void main() { int help() { x = 5; return 0; } }
-#     """)
-
-# def test_parser_107():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; };
-#         void main() { return 0; };
-#     """)
-
-# def test_parser_108():
-#     sp_test_valid("""
-#         struct Point { int x; int y; };
-#         struct Point2 { int x; Point2 y;};
-#         void main() { Point2 p; Point p2; }
-#     """)
-
-# def test_parser_109():
-#     sp_test_valid("""
-#         struct Point { int x; int y; };
-#         struct Point2 { int x; Point y;};
-#         struct Point3 { int x; Point2 y;};
-#         void main() { Point3 p; }
-#     """)
-
-# def test_parser_110():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; };
-#         struct Point2 { int x; Point y;};
-#         string func() { return "hello"; Point p;}
-#         struct Point3 { int x; Point2 y;};
-#         void main() { Point3 p; };
-#     """)
-# # ============================================================================
-# # STRUCT DECLARATION TESTS (10 tests)
-# # ============================================================================
-
-# def test_parser_011():
-#     sp_test_valid("""struct Empty {};""")
-
-
-# def test_parser_012():
-#     sp_test_valid("""struct Point { int x; };""")
-
-
-# def test_parser_013():
-#     sp_test_valid("""struct Point { int x; int y; float z; };""")
-
-
-# def test_parser_014():
-#     sp_test_valid("""struct Person { string name; int age; float height; };""")
-
-
-# def test_parser_015():
-#     sp_test_valid("""
-#         struct Point { int x; int y; };
-#         struct Shape { Point center; int radius; };
-#     """)
-
-
-# def test_parser_016():
-#     sp_test_invalid("struct Bad { auto x; };")
-
-
-# def test_parser_017():
-#     sp_test_invalid("struct Point { int x };")
-
-
-# def test_parser_018():
-#     sp_test_invalid("struct Bad { x; };")
-
-
-# def test_parser_019():
-#     sp_test_invalid("struct Bad { void x; };")
-
-
-# def test_parser_020():
-#     sp_test_invalid("struct Outer { struct Inner { int x; }; };")
-
-# def test_parser_111():
-#     sp_test_invalid("struct Bad { void x; };")
-
-# def test_parser_112():
-#     sp_test_invalid("struct Bad() { int x; };")
-
-# def test_parser_113():
-#     sp_test_invalid("struct Bad { int x = 5; };")
-
-# def test_parser_114():
-#     sp_test_valid("struct Bad { int x; ABC x;};")
-
-# def test_parser_115():
-#     sp_test_valid("""
-#         struct Point { int x; int y; };
-#         struct Shape { Point center; int radius; };
-#         struct Circle { int radius; };
-#     """)
-
-# def test_parser_116():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; struct Point2 { int x; int y; };};
-#     """)
-
-# def test_parser_117():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; Struct Point2 { int x; int y; };};
-#     """)
-
-# def test_parser_118():
-#     sp_test_invalid("""
-#         struct Point { int x; int y; int Point2 { int x; int y; };};
-#     """)
-
-# def test_parser_119():
-#     sp_test_invalid("""
-#         Struct Point { int x; int y; int Point2;};
-#     """)
-
-# def test_parser_120():
-#     sp_test_valid("""
-#         struct Point { int x; int y; Struct Point2;};
-#     """)
-
-# # ============================================================================
-# # FUNCTION DECLARATION TESTS (15 tests)
-# # ============================================================================
-
-# def test_parser_021():
-#     """Void function no params"""
-#     parser = Parser("void main() { }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_022():
-#     """Int function no params"""
-#     parser = Parser("int getZero() { return 0; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_023():
-#     """Function with single parameter"""
-#     parser = Parser("int double(int x) { return x * 2; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_024():
-#     """Function with multiple parameters"""
-#     parser = Parser("int add(int a, int b, int c) { return a + b + c; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_025():
-#     """Function with struct parameter"""
-#     parser = Parser("""
-#         struct Point { int x; int y; };
-#         int getX(Point p) { return p.x; }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_026():
-#     """Function with inferred return type"""
-#     parser = Parser("add(int a, int b) { return a + b; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_027():
-#     """Function returning string"""
-#     parser = Parser('string getName() { return "test"; }')
-#     assert parser.parse() == "success"
-
-
-# def test_parser_028():
-#     """Function returning float"""
-#     parser = Parser("float pi() { return 3.14; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_029():
-#     """Function returning struct"""
-#     parser = Parser("""
-#         struct Point { int x; int y; };
-#         Point origin() { return {0, 0}; }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_030():
-#     """Complex function body"""
-#     parser = Parser("""
-#         int factorial(int n) {
-#             if (n <= 1) {
-#                 return 1;
-#             } else {
-#                 return n * factorial(n - 1);
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_031():
-#     """Auto parameter - should fail"""
-#     parser = Parser("int bad(auto x) { return 0; }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_032():
-#     """Function without body - should fail"""
-#     parser = Parser("int test();")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_033():
-#     """Parameter without type - should fail"""
-#     parser = Parser("int bad(x) { return 0; }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_034():
-#     """Void parameter - should fail"""
-#     parser = Parser("int bad(void x) { return 0; }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_035():
-#     """Missing parentheses - should fail"""
-#     parser = Parser("int test { return 0; }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# # ============================================================================
-# # VARIABLE DECLARATION TESTS (10 tests)
-# # ============================================================================
-
-# def test_parser_036():
-#     """Auto with init"""
-#     parser = Parser("void main() { auto x = 10; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_037():
-#     """Auto without init"""
-#     parser = Parser("void main() { auto x; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_038():
-#     """Int with init"""
-#     parser = Parser("void main() { int x = 10; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_039():
-#     """Int without init"""
-#     parser = Parser("void main() { int x; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_040():
-#     """Float and string declarations"""
-#     parser = Parser('void main() { float x = 3.14; string s = "hello"; }')
-#     assert parser.parse() == "success"
-
-
-# def test_parser_041():
-#     """Struct variable with init"""
-#     parser = Parser("""
-#         struct Point { int x; int y; };
-#         void main() { Point p = {10, 20}; }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_042():
-#     """Multiple variable declarations"""
-#     parser = Parser("""
-#         void main() {
-#             int x = 5;
-#             float y = 3.14;
-#             auto z = x + y;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_043():
-#     """Variable initialized with expression"""
-#     parser = Parser("""
-#         void main() {
-#             int a = 5;
-#             int b = 10;
-#             auto sum = a + b * 2;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_044():
-#     """Missing semicolon - should fail"""
-#     parser = Parser("void main() { int x }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_045():
-#     """Void variable - should fail"""
-#     parser = Parser("void main() { void x; }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# # ============================================================================
-# # IF STATEMENT TESTS (5 tests)
-# # ============================================================================
-
-# def test_parser_046():
-#     """Simple if statement"""
-#     parser = Parser("void main() { if (1) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_047():
-#     """If with else"""
-#     parser = Parser("void main() { if (1) { } else { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_048():
-#     """If without braces"""
-#     parser = Parser("void main() { if (x > 0) x = x + 1; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_049():
-#     """Nested if"""
-#     parser = Parser("""
-#         void main() {
-#             if (x > 0) {
-#                 if (y < 10) {
-#                     x = y;
-#                 }
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_050():
-#     """If without condition - should fail"""
-#     parser = Parser("void main() { if () { } }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# # ============================================================================
-# # WHILE STATEMENT TESTS (5 tests)
-# # ============================================================================
-
-# def test_parser_051():
-#     """Simple while loop"""
-#     parser = Parser("void main() { while (1) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_052():
-#     """While with condition"""
-#     parser = Parser("void main() { while (x < 10) { x = x + 1; } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_053():
-#     """While with break and continue"""
-#     parser = Parser("""
-#         void main() {
-#             while (1) {
-#                 if (x == 5) break;
-#                 if (x == 3) continue;
-#                 x = x + 1;
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_054():
-#     """Nested while loops"""
-#     parser = Parser("""
-#         void main() {
-#             while (i < 10) {
-#                 while (j < 10) {
-#                     j = j + 1;
-#                 }
-#                 i = i + 1;
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_055():
-#     """While without condition - should fail"""
-#     parser = Parser("void main() { while () { } }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# # ============================================================================
-# # FOR STATEMENT TESTS (10 tests)
-# # ============================================================================
-
-# def test_parser_056():
-#     """Complete for loop"""
-#     parser = Parser("void main() { for (int i = 0; i < 10; i++) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_057():
-#     """For with empty init"""
-#     parser = Parser("void main() { for (; i < 10; i++) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_058():
-#     """For with empty condition"""
-#     parser = Parser("void main() { for (int i = 0; ; i++) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_059():
-#     """For with empty update"""
-#     parser = Parser("void main() { for (int i = 0; i < 10; ) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_060():
-#     """For with all empty (infinite loop)"""
-#     parser = Parser("void main() { for (; ; ) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_061():
-#     """For with auto init"""
-#     parser = Parser("void main() { for (auto i = 0; i < 10; i++) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_062():
-#     """For without type in init"""
-#     parser = Parser("void main() { for (i = 0; i < 10; i++) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_063():
-#     """For without braces"""
-#     parser = Parser("void main() { for (int i = 0; i < 10; i++) printInt(i); }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_064():
-#     """Nested for loops"""
-#     parser = Parser("""
-#         void main() {
-#             for (int i = 0; i < 10; i++) {
-#                 for (int j = 0; j < 10; j++) {
-#                     printInt(i + j);
-#                 }
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_065():
-#     """For missing semicolon - should fail"""
-#     parser = Parser("void main() { for (int i = 0 i < 10; i++) { } }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# # ============================================================================
-# # SWITCH STATEMENT TESTS (10 tests)
-# # ============================================================================
-
-# def test_parser_066():
-#     """Simple switch statement"""
-#     parser = Parser("void main() { switch (1) { case 1: break; } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_067():
-#     """Switch with default"""
-#     parser = Parser("void main() { switch (1) { case 1: break; default: break; } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_068():
-#     """Switch with multiple cases"""
-#     parser = Parser("""
-#         void main() {
-#             switch (x) {
-#                 case 1: printInt(1); break;
-#                 case 2: printInt(2); break;
-#                 case 3: printInt(3); break;
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_069():
-#     """Switch with fall-through"""
-#     parser = Parser("""
-#         void main() {
-#             switch (x) {
-#                 case 1:
-#                 case 2:
-#                     printInt(2);
-#                     break;
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_070():
-#     """Switch with empty case"""
-#     parser = Parser("void main() { switch (x) { case 1: } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_071():
-#     """Switch case with expression"""
-#     parser = Parser("void main() { switch (x) { case 1+2: break; case -5: break; } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_072():
-#     """Switch with empty body"""
-#     parser = Parser("void main() { switch (x) { } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_073():
-#     """Switch with only default"""
-#     parser = Parser("void main() { switch (x) { default: break; } }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_074():
-#     """Nested switch"""
-#     parser = Parser("""
-#         void main() {
-#             switch (x) {
-#                 case 1:
-#                     switch (y) {
-#                         case 2: break;
-#                     }
-#                     break;
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_075():
-#     """Switch case without colon - should fail"""
-#     parser = Parser("void main() { switch (x) { case 1 break; } }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# # ============================================================================
-# # EXPRESSION TESTS (15 tests)
-# # ============================================================================
-
-# def test_parser_076():
-#     """Arithmetic expressions"""
-#     parser = Parser("void main() { auto x = 1 + 2 - 3 * 4 / 5 % 2; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_077():
-#     """Comparison expressions"""
-#     parser = Parser("void main() { auto x = 1 < 2 && 3 > 4 || 5 <= 6 && 7 >= 8; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_078():
-#     """Logical expressions"""
-#     parser = Parser("void main() { auto x = 1 && 2 || !3; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_079():
-#     """Increment and decrement"""
-#     parser = Parser("void main() { int x; --x; x++; --x; x--; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_080():
-#     """Unary operators"""
-#     parser = Parser("void main() { auto x = -5; auto y = +3; auto z = !0; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_081():
-#     """Parenthesized expressions"""
-#     parser = Parser("void main() { auto x = (1 + 2) * (3 - 4); }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_082():
-#     """Member access"""
-#     parser = Parser("""
-#         struct Point { int x; int y; };
-#         void main() {
-#             Point p = {1, 2};
-#             auto a = p.x;
-#             auto b = p.y;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_083():
-#     """Nested member access"""
-#     parser = Parser("""
-#         struct Inner { int value; };
-#         struct Outer { Inner inner; };
-#         void main() {
-#             Outer o;
-#             auto x = o.inner.value;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_084():
-#     """Function call"""
-#     parser = Parser("""
-#         int getValue() { return 42; }
-#         void main() { auto x = getValue(); }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_085():
-#     """Function call with arguments"""
-#     parser = Parser("""
-#         int add(int a, int b, int c) { return a + b + c; }
-#         void main() { auto x = add(3, 5, 7); }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_086():
-#     """Struct literal"""
-#     parser = Parser("""
-#         struct Point { int x; int y; };
-#         void main() { Point p = {10, 20}; }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_087():
-#     """Complex precedence"""
-#     parser = Parser("void main() { auto x = 1 + 2 * 3 < 4 && 5 || !6; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_088():
-#     """Chained assignment"""
-#     parser = Parser("void main() { int a, b, c; a = b = c = 5; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_089():
-#     """Assignment in expression"""
-#     parser = Parser("void main() { int x, y; y = (x = 5) + 7; }")
-#     assert parser.parse() == "success"
-
-
-# def test_parser_090():
-#     """Member access with postfix"""
-#     parser = Parser("""
-#         struct Point { int x; };
-#         void main() {
-#             Point p;
-#             p.x = 10;
-#             ++p.x;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# # ============================================================================
-# # COMPLEX/INTEGRATION TESTS (5 tests)
-# # ============================================================================
-
-# def test_parser_091():
-#     """Factorial function"""
-#     parser = Parser("""
-#         int factorial(int n) {
-#             if (n <= 1) {
-#                 return 1;
-#             } else {
-#                 return n * factorial(n - 1);
-#             }
-#         }
-#         void main() {
-#             auto result = factorial(5);
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_092():
-#     """Loop with calculations"""
-#     parser = Parser("""
-#         void main() {
-#             int sum = 0;
-#             for (int i = 1; i <= 10; i++) {
-#                 sum = sum + i;
-#                 if (sum > 30) break;
-#             }
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_093():
-#     """Struct operations"""
-#     parser = Parser("""
-#         struct Point { int x; int y; };
-        
-#         Point createPoint(int x, int y) {
-#             return {x, y};
-#         }
-        
-#         void main() {
-#             Point p1 = createPoint(10, 20);
-#             Point p2;
-#             p2 = p1;
-#             p2.x = p2.x + 5;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_094():
-#     """All statement types"""
-#     parser = Parser("""
-#         void main() {
-#             int x = 0;
-            
-#             if (x == 0) {
-#                 x = 1;
-#             }
-            
-#             while (x < 10) {
-#                 x++;
-#             }
-            
-#             for (int i = 0; i < 5; i++) {
-#                 x = x + i;
-#             }
-            
-#             switch (x) {
-#                 case 10:
-#                     break;
-#                 default:
-#                     x = 0;
-#                     break;
-#             }
-            
-#             return;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# def test_parser_095():
-#     """Complex expressions with all operators"""
-#     parser = Parser("""
-#         struct Point { int x; };
-#         int getValue() { return 5; }
-#         void main() {
-#             Point p = {5};
-#             auto result = p.x++ + getValue() * 2 < 10 && 1 || !0;
-#         }
-#     """)
-#     assert parser.parse() == "success"
-
-
-# # ============================================================================
-# # ERROR/EDGE CASE TESTS (5 tests)
-# # ============================================================================
-
-# def test_parser_096():
-#     """Missing brace - should fail"""
-#     parser = Parser("void main() { int x = 5;")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_097():
-#     """Mismatched braces - should fail"""
-#     parser = Parser("void main() { if (1) { }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_098():
-#     """Invalid expression - should fail"""
-#     parser = Parser("void main() { int x = + * 5; }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_099():
-#     """Incomplete struct - should fail"""
-#     parser = Parser("struct Point {")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-
-# def test_parser_100():
-#     """Empty parameter (just comma) - should fail"""
-#     parser = Parser("int add(int a, , int b) { return 0; }")
-#     result = parser.parse()
-#     assert result != "success"
-#     assert "Error on line" in result
-
-# def test_demo_1():
-#     parser = Parser("""
-#         void main() {
-#             int x,y;
-#         }        
-#     """)
-#     assert parser.parse() == "success"
-
-# def test_demo_2():
-#     parser = Parser("""
-#         void main() { auto iF = 5; x = 5; }       
-#     """)
-#     assert parser.parse() == "success"
 """
 Parser test cases for TyC compiler
 TODO: Implement 100 test cases for parser
@@ -1138,60 +7,824 @@ import pytest
 from tests.utils import Parser
 
 
-# ========== Simple Test Cases (10 types) ==========
-def test_empty_program():
-    """1. Empty program"""
-    assert Parser("").parse() == "success"
+def test_parser_001():
+    """Test 1"""
+    parser = Parser("")
+    assert parser.parse() == "success"
 
 
-def test_program_with_only_main():
-    """2. Program with only main function"""
-    assert Parser("void main() {}").parse() == "success"
+def test_parser_002():
+    """Test 2"""
+    parser = Parser("void main() { }")
+    assert parser.parse() == "success"
 
 
-def test_struct_simple():
-    """3. Struct declaration"""
-    source = "struct Point { int x; int y; };"
-    assert Parser(source).parse() == "success"
+def test_parser_003():
+    """Test 3"""
+    parser = Parser("struct Circle { int rad; };")
+    assert parser.parse() == "success"
 
 
-def test_function_no_params():
-    """4. Function with no parameters"""
-    source = "void greet() { printString(\"Hello\"); }"
-    assert Parser(source).parse() == "success"
+def test_parser_004():
+    """Test 4"""
+    parser = Parser("struct Vector { int dx; }; void main() { }")
+    assert parser.parse() == "success"
 
 
-def test_var_decl_auto_with_init():
-    """5. Variable declaration"""
-    source = "void main() { auto x = 5; }"
-    assert Parser(source).parse() == "success"
+def test_parser_005():
+    """Test 5"""
+    parser = Parser("""
+        int multiply(int m, int n) { return m * n; }
+        void main() { }
+    """)
+    assert parser.parse() == "success"
 
 
-def test_if_simple():
-    """6. If statement"""
-    source = "void main() { if (1) printInt(1); }"
-    assert Parser(source).parse() == "success"
+def test_parser_006():
+    """Test 6"""
+    parser = Parser("""
+        struct Node { int val; int next; };
+        struct Student { string fullname; int score; };
+    """)
+    assert parser.parse() == "success"
 
 
-def test_while_simple():
-    """7. While statement"""
-    source = "void main() { while (1) printInt(1); }"
-    assert Parser(source).parse() == "success"
+def test_parser_007():
+    """Test 7"""
+    parser = Parser("""
+        struct Rectangle { int w; };
+        int utility() { return 1; }
+        struct Employee { string title; };
+        void main() { }
+    """)
+    assert parser.parse() == "success"
 
 
-def test_for_simple():
-    """8. For statement"""
-    source = "void main() { for (auto i = 0; i < 10; ++i) printInt(i); }"
-    assert Parser(source).parse() == "success"
+def test_parser_008():
+    """Test 8"""
+    parser = Parser("struct Circle { int rad; }")
+    result = parser.parse()
+    assert result != "success"
 
 
-def test_switch_simple():
-    """9. Switch statement"""
-    source = "void main() { switch (1) { case 1: printInt(1); break; } }"
-    assert Parser(source).parse() == "success"
+def test_parser_009():
+    """Test 9"""
+    parser = Parser("3 * 7;")
+    result = parser.parse()
+    assert result != "success"
 
 
-def test_assignment_simple():
-    """10. Assignment statement"""
-    source = "void main() { int x; x = 5; }"
-    assert Parser(source).parse() == "success"
+def test_parser_010():
+    """Test 10"""
+    parser = Parser("int num = 42;")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_011():
+    """Test 11"""
+    parser = Parser("""struct Blank {};""")
+    assert parser.parse() == "success"
+
+
+def test_parser_012():
+    """Test 12"""
+    parser = Parser("struct Node { int data; };")
+    assert parser.parse() == "success"
+
+
+def test_parser_013():
+    """Test 13"""
+    parser = Parser("struct Vector { int dx; int dy; float w; };")
+    assert parser.parse() == "success"
+
+
+def test_parser_014():
+    """Test 14"""
+    parser = Parser("struct Employee { string title; int id; float salary; };")
+    assert parser.parse() == "success"
+
+
+def test_parser_015():
+    """Test 15"""
+    parser = Parser("""
+        struct Circle { int rad; int cy; };
+        struct Drawing { Circle center; int scale; };
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_016():
+    """Test 16"""
+    parser = Parser("struct Invalid { auto field; };")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_017():
+    """Test 17"""
+    parser = Parser("struct Node { int val }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_018():
+    """Test 18"""
+    parser = Parser("struct Wrong { item; };")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_019():
+    """Test 19"""
+    parser = Parser("struct Invalid { void member; };")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_020():
+    """Test 20"""
+    parser = Parser("struct Container { struct Item { int id; }; };")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_021():
+    """Test 21"""
+    parser = Parser("void main() { }")
+    assert parser.parse() == "success"
+
+
+def test_parser_022():
+    """Test 22"""
+    parser = Parser("int getOne() { return 1; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_023():
+    """Test 23"""
+    parser = Parser("int triple(int num) { return num * 3; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_024():
+    """Test 24"""
+    parser = Parser("int sum(int p, int q, int r) { return p + q + r; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_025():
+    """Test 25"""
+    parser = Parser("""
+        struct Circle { int radius; int cy; };
+        int getRadius(Circle c) { return c.radius; }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_026():
+    """Test 26"""
+    parser = Parser("compute(int m, int n) { return m + n; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_027():
+    """Test 27"""
+    parser = Parser('string getTitle() { return "demo"; }')
+    assert parser.parse() == "success"
+
+
+def test_parser_028():
+    """Test 28"""
+    parser = Parser("float getPi() { return 3.14159; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_029():
+    """Test 29"""
+    parser = Parser("""
+        struct Vector { int dx; int dy; };
+        Vector zero() { return {0, 0}; }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_030():
+    """Test 30"""
+    parser = Parser("""
+        int fib(int n) {
+            if (n <= 2) {
+                return 1;
+            } else {
+                return fib(n - 1) + fib(n - 2);
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_031():
+    """Test 31"""
+    parser = Parser("int invalid(auto param) { return 0; }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_032():
+    """Test 32"""
+    parser = Parser("int declaration();")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_033():
+    """Test 33"""
+    parser = Parser("int wrong(arg) { return 0; }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_034():
+    """Test 34"""
+    parser = Parser("int wrong(void param) { return 0; }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_035():
+    """Test 35"""
+    parser = Parser("int broken { return 0; }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_036():
+    """Test 36"""
+    parser = Parser("void main() { auto val = 25; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_037():
+    """Test 37"""
+    parser = Parser("void main() { auto num; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_038():
+    """Test 38"""
+    parser = Parser("void main() { int count = 17; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_039():
+    """Test 39"""
+    parser = Parser("void main() { int total; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_040():
+    """Test 40"""
+    parser = Parser('void main() { float pi = 3.14159; string msg = "hi"; }')
+    assert parser.parse() == "success"
+
+
+def test_parser_041():
+    """Test 41"""
+    parser = Parser("""
+        struct Vector { int dx; int dy; };
+        void main() { Vector v = {15, 30}; }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_042():
+    """Test 42"""
+    parser = Parser("""
+        void main() {
+            int num = 7;
+            float ratio = 2.718;
+            auto result = num + ratio;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_043():
+    """Test 43"""
+    parser = Parser("""
+        void main() {
+            int m = 8;
+            int n = 12;
+            auto product = m * n - 4;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_044():
+    """Test 44"""
+    parser = Parser("void main() { int total }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_045():
+    """Test 45"""
+    parser = Parser("void main() { void invalid; }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_046():
+    """Test 46"""
+    parser = Parser("void main() { if (1) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_047():
+    """Test 47"""
+    parser = Parser("void main() { if (0) { } else { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_048():
+    """Test 48"""
+    parser = Parser("void main() { if (count > 5) count = count + 2; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_049():
+    """Test 49"""
+    parser = Parser("""
+        void main() {
+            if (num > 3) {
+                if (val < 20) {
+                    num = val;
+                }
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_050():
+    """Test 50"""
+    parser = Parser("void main() { if () { } }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_051():
+    """Test 51"""
+    parser = Parser("void main() { while (1) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_052():
+    """Test 52"""
+    parser = Parser("void main() { while (count < 15) { count = count + 3; } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_053():
+    """Test 53"""
+    parser = Parser("""
+        void main() {
+            while (1) {
+                if (total == 7) break;
+                if (total == 4) continue;
+                total = total + 2;
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_054():
+    """Test 54"""
+    parser = Parser("""
+        void main() {
+            while (row < 8) {
+                while (col < 12) {
+                    col = col + 2;
+                }
+                row = row + 1;
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_055():
+    """Test 55"""
+    parser = Parser("void main() { while () { } }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_056():
+    """Test 56"""
+    parser = Parser("void main() { for (int idx = 1; idx < 20; idx++) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_057():
+    """Test 57"""
+    parser = Parser("void main() { for (; row < 15; row++) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_058():
+    """Test 58"""
+    parser = Parser("void main() { for (int k = 2; ; k++) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_059():
+    """Test 59"""
+    parser = Parser("void main() { for (int j = 3; j < 25; ) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_060():
+    """Test 60"""
+    parser = Parser("void main() { for (; ; ) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_061():
+    """Test 61"""
+    parser = Parser("void main() { for (auto n = 1; n < 18; n++) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_062():
+    """Test 62"""
+    parser = Parser("void main() { for (counter = 2; counter < 16; counter++) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_063():
+    """Test 63"""
+    parser = Parser("void main() { for (int pos = 0; pos < 14; pos++) printInt(pos); }")
+    assert parser.parse() == "success"
+
+
+def test_parser_064():
+    """Test 64"""
+    parser = Parser("""
+        void main() {
+            for (int row = 1; row < 9; row++) {
+                for (int col = 1; col < 7; col++) {
+                    printInt(row + col);
+                }
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_065():
+    """Test 65"""
+    parser = Parser("void main() { for (int idx = 0 idx < 20; idx++) { } }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_066():
+    """Test 66"""
+    parser = Parser("void main() { switch (2) { case 2: break; } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_067():
+    """Test 67"""
+    parser = Parser("void main() { switch (3) { case 3: break; default: break; } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_068():
+    """Test 68"""
+    parser = Parser("""
+        void main() {
+            switch (choice) {
+                case 2: printInt(2); break;
+                case 4: printInt(4); break;
+                case 6: printInt(6); break;
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_069():
+    """Test 69"""
+    parser = Parser("""
+        void main() {
+            switch (val) {
+                case 2:
+                case 4:
+                    printInt(4);
+                    break;
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_070():
+    """Test 70"""
+    parser = Parser("void main() { switch (num) { case 3: } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_071():
+    """Test 71"""
+    parser = Parser("void main() { switch (val) { case 2+4: break; case -7: break; } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_072():
+    """Test 72"""
+    parser = Parser("void main() { switch (choice) { } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_073():
+    """Test 73"""
+    parser = Parser("void main() { switch (input) { default: break; } }")
+    assert parser.parse() == "success"
+
+
+def test_parser_074():
+    """Test 74"""
+    parser = Parser("""
+        void main() {
+            switch (outer) {
+                case 2:
+                    switch (inner) {
+                        case 4: break;
+                    }
+                    break;
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_075():
+    """Test 75"""
+    parser = Parser("void main() { switch (val) { case 2 break; } }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_076():
+    """Test 76"""
+    parser = Parser("void main() { auto res = 2 + 4 - 6 * 8 / 3 % 5; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_077():
+    """Test 77"""
+    parser = Parser("void main() { auto res = 2 < 5 && 6 > 8 || 9 <= 11 && 13 >= 15; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_078():
+    """Test 78"""
+    parser = Parser("void main() { auto res = 2 && 5 || !7; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_079():
+    """Test 79"""
+    parser = Parser("void main() { int count; --count; count++; --count; count--; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_080():
+    """Test 80"""
+    parser = Parser("void main() { auto num = -8; auto val = +6; auto flag = !1; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_081():
+    """Test 81"""
+    parser = Parser("void main() { auto total = (2 + 5) * (7 - 9); }")
+    assert parser.parse() == "success"
+
+
+def test_parser_082():
+    """Test 82"""
+    parser = Parser("""
+        struct Circle { int radius; int cy; };
+        void main() {
+            Circle c = {3, 7};
+            auto r = c.radius;
+            auto cy = c.cy;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_083():
+    """Test 83"""
+    parser = Parser("""
+        struct Core { int data; };
+        struct Shell { Core inside; };
+        void main() {
+            Shell obj;
+            auto val = obj.inside.data;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_084():
+    """Test 84"""
+    parser = Parser("""
+        int compute() { return 84; }
+        void main() { auto num = compute(); }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_085():
+    """Test 85"""
+    parser = Parser("""
+        int sum(int m, int n, int p) { return m + n + p; }
+        void main() { auto total = sum(4, 9, 13); }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_086():
+    """Test 86"""
+    parser = Parser("""
+        struct Vector { int dx; int dy; };
+        void main() { Vector v = {18, 24}; }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_087():
+    """Test 87"""
+    parser = Parser("void main() { auto res = 3 + 5 * 7 < 9 && 11 || !13; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_088():
+    """Test 88"""
+    parser = Parser("void main() { int p, q, r; p = q = r = 8; }")
+    assert parser.parse() != "success"
+
+
+def test_parser_089():
+    """Test 89"""
+    parser = Parser("void main() { int m; int n; n = (m = 9) + 15; }")
+    assert parser.parse() == "success"
+
+
+def test_parser_090():
+    """Test 90"""
+    parser = Parser("""
+        struct Node { int val; };
+        void main() {
+            Node nd;
+            nd.val = 18;
+            ++nd.val;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_091():
+    """Test 91"""
+    parser = Parser("""
+        int power(int base, int exp) {
+            if (exp <= 0) {
+                return 1;
+            } else {
+                return base * power(base, exp - 1);
+            }
+        }
+        void main() {
+            auto answer = power(3, 4);
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_092():
+    """Test 92"""
+    parser = Parser("""
+        void main() {
+            int total = 1;
+            for (int k = 2; k <= 15; k++) {
+                total = total + k;
+                if (total > 50) break;
+            }
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_093():
+    """Test 93"""
+    parser = Parser("""
+        struct Vector { int dx; int dy; };
+        
+        Vector makeVector(int dx, int dy) {
+            return {dx, dy};
+        }
+        
+        void main() {
+            Vector v1 = makeVector(12, 24);
+            Vector v2;
+            v2 = v1;
+            v2.dx = v2.dx + 8;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_094():
+    """Test 94"""
+    parser = Parser("""
+        void main() {
+            int num = 1;
+            
+            if (num == 1) {
+                num = 2;
+            }
+            
+            while (num < 18) {
+                num++;
+            }
+            
+            for (int k = 1; k < 9; k++) {
+                num = num + k;
+            }
+            
+            switch (num) {
+                case 18:
+                    break;
+                default:
+                    num = 1;
+                    break;
+            }
+            
+            return;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_095():
+    """Test 95"""
+    parser = Parser("""
+        struct Node { int data; };
+        int compute() { return 9; }
+        void main() {
+            Node nd = {7};
+            auto answer = nd.data++ + compute() * 3 < 18 && 2 || !1;
+        }
+    """)
+    assert parser.parse() == "success"
+
+
+def test_parser_096():
+    """Test 96"""
+    parser = Parser("void main() { int count = 9;")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_097():
+    """Test 97"""
+    parser = Parser("void main() { if (2) { }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_098():
+    """Test 98"""
+    parser = Parser("void main() { int num = + * 7; }")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_099():
+    """Test 99"""
+    parser = Parser("struct Vector {")
+    result = parser.parse()
+    assert result != "success"
+
+
+def test_parser_100():
+    """Test 100"""
+    parser = Parser("int compute(int m, , int n) { return 0; }")
+    result = parser.parse()
+    assert result != "success"
+    

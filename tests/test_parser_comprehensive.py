@@ -1,6 +1,7 @@
 """
-Parser test cases for TyC compiler
-TODO: Implement 100 test cases for parser
+COMPREHENSIVE EXTREME EDGE CASE TESTS FOR TyC PARSER
+100 extremely difficult test cases covering all subtle parser ambiguities,
+operator precedence extremes, expression disambiguation, and hidden errors.
 """
 
 import pytest
@@ -12,873 +13,763 @@ def test_valid(source):
 
 def test_invalid(source):
     parser = Parser(source)
-    assert parser.parse() != "success"
-    assert "Error on line" in parser.parse()
-
-
-# ============================================================================
-# PROGRAM STRUCTURE TESTS (20 tests)
-# ============================================================================
-
-def test_parser_001():
-    test_valid("")
-
-def test_parser_002():
-    test_valid("void main() { }")
-
-def test_parser_003():
-    test_valid("struct Point { int x; };")
-
-def test_parser_004():
-    test_valid("struct Point { int x; }; void main() { }")
-
-def test_parser_005():
-    test_valid("""
-        int add(int a, int b) { return a + b; }
-        void main() { }
-    """)
-
-def test_parser_006():
-    test_valid("""
-        struct Point { int x; int y; };
-        struct Person { string name; int age; };
-    """)
-
-def test_parser_007():
-    test_valid("""
-        struct Point { int x; };
-        int helper() { return 0; }
-        struct Person { string name; };
-        void main() { }
-    """)
-
-def test_parser_008():
-    test_invalid("struct Point { int x; }")
-
-def test_parser_009():
-    test_invalid("1 + 2;")
-
-def test_parser_010():
-    test_invalid("int x = 5;")
-
-def test_parser_101():
-    test_invalid("""
-        struct Point { int x; int help() {} };
-        int helper() { return 0; }
-        struct Person { string name; };
-        void main() { }
-    """)
-
-def test_parser_102():
-    test_invalid("""
-        struct Point { int x; int y; };
-        int helper() { return 0; struct Help { int x; int y; }; }
-        struct Person { string name; };
-        void main() { }
-    """)
-
-def test_parser_103():
-    test_invalid("""
-        struct Point { int x; int y; };
-        int helper() { return 0; }
-        struct Person { string name; };
-        void main() { int help() { x = 5; } return 0; }
-    """)
-
-def test_parser_104():
-    test_invalid("""
-        struct Point { int x; int y; struct Point2 { int x; int y; }; };
-        int helper() { return 0; }
-        struct Person { string name; };
-        void main() { int help() { x = 5; } }
-    """)
-
-def test_parser_105():
-    test_invalid("""
-        struct Point { int x; int y; };
-        int helper() { return 0; }
-        struct Person { string name; };
-        void main() { int help() { x = 5; return 0; } }
-    """)
-
-def test_parser_106():
-    test_invalid("""
-        struct Point { int x; int y; }
-        void main() { int help() { x = 5; return 0; } }
-    """)
-
-def test_parser_107():
-    test_invalid("""
-        struct Point { int x; int y; };
-        void main() { return 0; };
-    """)
-
-def test_parser_108():
-    test_valid("""
-        struct Point { int x; int y; };
-        struct Point2 { int x; Point2 y;};
-        void main() { Point2 p; Point p2; };
-    """)
-
-def test_parser_109():
-    test_valid("""
-        struct Point { int x; int y; };
-        struct Point2 { int x; Point y;};
-        struct Point3 { int x; Point2 y;};
-        void main() { Point3 p; };
-    """)
-
-def test_parser_110():
-    test_invalid("""
-        struct Point { int x; int y; };
-        struct Point2 { int x; Point y;};
-        string func() { return "hello"; Point p;}
-        struct Point3 { int x; Point2 y;};
-        void main() { Point3 p; };
-    """)
-# ============================================================================
-# STRUCT DECLARATION TESTS (10 tests)
-# ============================================================================
-
-def test_parser_011():
-    test_valid("""struct Empty {};""")
-
-
-def test_parser_012():
-    test_valid("""struct Point { int x; };""")
-
-
-def test_parser_013():
-    test_valid("""struct Point { int x; int y; float z; };""")
-
-
-def test_parser_014():
-    test_valid("""struct Person { string name; int age; float height; };""")
-
-
-def test_parser_015():
-    test_valid("""
-        struct Point { int x; int y; };
-        struct Shape { Point center; int radius; };
-    """)
-
-
-def test_parser_016():
-    test_invalid("struct Bad { auto x; };")
-
-
-def test_parser_017():
-    test_invalid("struct Point { int x };")
-
-
-def test_parser_018():
-    test_invalid("struct Bad { x; };")
-
-
-def test_parser_019():
-    test_invalid("struct Bad { void x; };")
-
-
-def test_parser_020():
-    test_invalid("struct Outer { struct Inner { int x; }; };")
-
-def test_parser_111():
-    test_invalid("struct Bad { void x; };")
-
-def test_parser_112():
-    test_invalid("struct Bad() { int x; };")
-
-def test_parser_113():
-    test_invalid("struct Bad { int x = 5; };")
-
-def test_parser_114():
-    test_valid("struct Bad { int x; ABC x;};")
-
-def test_parser_115():
-    test_valid("""
-        struct Point { int x; int y; };
-        struct Shape { Point center; int radius; };
-        struct Circle { int radius; };
-    """)
-
-def test_parser_116():
-    test_invalid("""
-        struct Point { int x; int y; struct Point2 { int x; int y; };};
-    """)
-
-def test_parser_117():
-    test_invalid("""
-        struct Point { int x; int y; Struct Point2 { int x; int y; };};
-    """)
-
-def test_parser_118():
-    test_invalid("""
-        struct Point { int x; int y; int Point2 { int x; int y; };};
-    """)
-
-def test_parser_119():
-    test_invalid("""
-        Struct Point { int x; int y; int Point2;};
-    """)
-
-def test_parser_120():
-    test_valid("""
-        struct Point { int x; int y; Struct Point2;};
-    """)
+    result = parser.parse()
+    assert result != "success"
+    assert "Error on line" in result
 
 # ============================================================================
-# FUNCTION DECLARATION TESTS (15 tests)
+# GROUP 1: EXPRESSION STATEMENT DISAMBIGUATION (15 tests)
+# Testing the ambiguity between assignments, calls, and standalone expressions
 # ============================================================================
 
-def test_parser_021():
-    """Void function with empty body"""
-    test_valid("void main() { }")
+def test_extreme_001():
+    """Standalone expression statement - just expression"""
+    test_valid("void main() { 1 + 2 * 3; }")
 
+def test_extreme_002():
+    """Function call as expression statement"""
+    test_valid("void main() { print(); }")
 
-def test_parser_022():
-    """Int function with return statement"""
-    test_valid("int getZero() { return 0; }")
+def test_extreme_003():
+    """Postfix increment as expression statement"""
+    test_valid("void main() { int x; x++; }")
 
+def test_extreme_004():
+    """Prefix increment as expression statement"""
+    test_valid("void main() { int x; ++x; }")
 
-def test_parser_023():
-    """Float function with parameter and return statement"""
-    test_valid("float double(int x) { return x * 2 - 0.5; }")
-
-
-def test_parser_024():
-    """Int function with multiple parameters and return statement"""
-    test_valid("int add(int a, int b, int c) { return a + b + c; }")
-
-
-def test_parser_025():
-    """Int function with struct parameter and return statement"""
+def test_extreme_005():
+    """Member access assignment"""
     test_valid("""
-        struct Point { int x; int y; };
-        int getX(Point p) { return p.x; }
-    """)
-
-
-def test_parser_026():
-    """Int function with multiple parameters (wrong) and return statement"""
-    test_invalid("int add(int a, int b, int c,) { return a + b + c; }")
-
-
-def test_parser_027():
-    """String function with return statement"""
-    test_valid('string getName() { return "test"; }')
-
-
-def test_parser_028():
-    """Float function with return statement"""
-    test_valid("float pi() { return 3.14; }")
-
-
-def test_parser_029():
-    """Struct function with return statement"""
-    test_valid("""
-        struct Point { int x; int y; };
-        Point origin() { return {0, 0}; }
-    """)
-
-
-def test_parser_030():
-    """Int function with recursive call"""
-    test_valid("""
-        int factorial(int n) {
-            if (n <= 1) {
-                return 1;
-            } else {
-                return n * factorial(n - 1);
-            }
+        struct S { int x; };
+        void main() {
+            S s;
+            s.x = 10;
         }
     """)
 
-
-def test_parser_031():
-    """Int function with auto parameter (wrong)"""
-    test_invalid("int bad(auto x) { return 0; }")
-
-
-def test_parser_032():
-    """Int function with no body (wrong)"""
-    test_invalid("int test();")
-
-
-def test_parser_033():
-    """Int function with wrong parameter declaration (wrong)"""
-    test_invalid("int bad(x) { return 0; }")
-
-
-def test_parser_034():
-    """Int function with void parameter (wrong)"""
-    test_invalid("int bad(void x) { return 0; }")
-
-
-def test_parser_035():
-    """Int function with no parenthesis (wrong)"""
-    test_invalid("int test { return 0; }")
-
-def test_parser_120():
-    """Int function with no return statement (wrong)"""
-    test_invalid("int add(int a, int b) { a = b; b = 1; c = a + b; }")
-
-def test_parser_121():
-    """Int function with no return statement (wrong)"""
-    test_invalid("int add(int a, int b) { a = b; b = 1; c = a + b; }")
-
-def test_parser_122():
-    """Int function with auto parameter (wrong)"""
-    test_invalid("int add(auto a, int b) { a = b; b = 1; c = a + b; }")
-
-def test_parser_123():
-    """Int function with auto parameter (wrong)"""
-    test_invalid("int add(auto a, int b) { a = b; b = 1; c = a + b; }")
-
-def test_parser_124():
-    """Function with no ftype"""
-    test_valid("add(int a, int b) { a = b; b = 1; c = a + b; }")
-
-def test_parser_125():
-    """Function with no ftype"""
-    test_valid("add(int a, int b) { return a + b; }")
-
-def test_parser_126():
-    """Function with no ftype (wrong)"""
-    test_invalid("add(int a, int b) { return a + b; }")
-# ============================================================================
-# VARIABLE DECLARATION TESTS (10 tests)
-# ============================================================================
-
-def test_parser_036():
-    """Auto with init"""
-    test_valid("void main() { auto x = 10; }")
-
-
-def test_parser_037():
-    """Auto without init"""
-    test_valid("void main() { auto x; }")
-
-
-def test_parser_038():
-    """Int with init"""
-    test_valid("void main() { int x = 10; }")
-
-
-def test_parser_039():
-    """Int without init"""
-    test_valid("void main() { int x; }")
-
-
-def test_parser_040():
-    """Float and string declarations"""
-    test_valid('void main() { float x = 3.14; string s = "hello"; }')
-
-
-def test_parser_041():
-    """Struct variable with init"""
+def test_extreme_006():
+    """Chained member access assignment"""
     test_valid("""
-        struct Point { int x; int y; };
-        void main() { Point p = {10, 20}; }
-    """)
-
-
-def test_parser_042():
-    """Multiple variable declarations"""
-    test_valid("""
+        struct A { B b; };
+        struct B { int x; };
         void main() {
-            int x = 5;
-            float y = 3.14;
-            auto z = x + y;
+            A a;
+            a.b.x = 5;
         }
     """)
 
+def test_extreme_007():
+    """Function call with member access"""
+    test_valid("void main() { obj.method(); }")
 
-def test_parser_043():
-    """Variable initialized with expression"""
+def test_extreme_008():
+    """Assignment within function call argument"""
+    test_valid("void main() { int x; f(x = 5); }")
+
+def test_extreme_009():
+    """Parenthesized expression as statement"""
+    test_valid("void main() { int x; (x); }")
+
+def test_extreme_010():
+    """Multiple assignments in one statement"""
+    test_valid("void main() { int a, b, c; a = b = c = 10; }")
+
+def test_extreme_011():
+    """Assignment in expression context"""
+    test_valid("void main() { int a, b; auto x = (a = 5) + (b = 10); }")
+
+def test_extreme_012():
+    """Postfix on member access"""
     test_valid("""
+        struct S { int x; };
         void main() {
-            int a = 5;
-            int b = 10;
-            auto sum = a + b * 2;
+            S s;
+            s.x++;
         }
     """)
 
-
-def test_parser_044():
-    """Missing semicolon - should fail"""
-    test_invalid("void main() { int x }")
-
-
-def test_parser_045():
-    """Void variable - should fail"""
-    test_invalid("void main() { void x; }")
-
-
-# ============================================================================
-# IF STATEMENT TESTS (5 tests)
-# ============================================================================
-
-def test_parser_046():
-    """Simple if statement"""
-    test_valid("void main() { if (1) { } }")
-
-
-def test_parser_047():
-    """If with else"""
-    test_valid("void main() { if (1) { } else { } }")
-
-
-def test_parser_048():
-    """If without braces"""
-    test_valid("void main() { if (x > 0) x = x + 1; }")
-
-
-def test_parser_049():
-    """Nested if"""
+def test_extreme_013():
+    """Prefix on member access"""
     test_valid("""
+        struct S { int x; };
         void main() {
-            if (x > 0) {
-                if (y < 10) {
-                    x = y;
-                }
-            }
+            S s;
+            ++s.x;
         }
     """)
 
-
-def test_parser_050():
-    """If without condition - should fail"""
-    test_invalid("void main() { if () { } }")
-
-
-# ============================================================================
-# WHILE STATEMENT TESTS (5 tests)
-# ============================================================================
-
-def test_parser_051():
-    """Simple while loop"""
-    test_valid("void main() { while (1) { } }")
-
-
-def test_parser_052():
-    """While with condition"""
-    test_valid("void main() { while (x < 10) { x = x + 1; } }")
-
-
-def test_parser_053():
-    """While with break and continue"""
-    test_valid("""
+def test_extreme_014():
+    """Cannot increment function call result - INVALID"""
+    test_invalid("""
+        int f() { return 5; }
         void main() {
-            while (1) {
-                if (x == 5) break;
-                if (x == 3) continue;
-                x = x + 1;
-            }
+            f()++;
         }
     """)
 
+def test_extreme_015():
+    """Cannot assign to function call - INVALID"""
+    test_invalid("void main() { f() = 5; }")
 
-def test_parser_054():
-    """Nested while loops"""
+# ============================================================================
+# GROUP 2: OPERATOR PRECEDENCE EXTREMES (20 tests)
+# Testing all 11 precedence levels in complex combinations
+# ============================================================================
+
+def test_extreme_016():
+    """Member access (highest) > postfix > prefix > unary"""
     test_valid("""
+        struct S { int x; };
         void main() {
-            while (i < 10) {
-                while (j < 10) {
-                    j = j + 1;
-                }
-                i = i + 1;
-            }
+            S s;
+            auto v = !++s.x++;
         }
     """)
 
+def test_extreme_017():
+    """All unary operators stacked"""
+    test_valid("void main() { auto x = !-+!-5; }")
 
-def test_parser_055():
-    """While without condition - should fail"""
-    test_invalid("void main() { while () { } }")
+def test_extreme_018():
+    """Multiple prefix increments"""
+    test_valid("void main() { int x; +++++x; }")
 
+def test_extreme_019():
+    """Postfix cannot be stacked - INVALID"""
+    test_invalid("void main() { int x; x++++; }")
 
-# ============================================================================
-# FOR STATEMENT TESTS (10 tests)
-# ============================================================================
+def test_extreme_020():
+    """Assignment has lowest precedence"""
+    test_valid("void main() { int a, b; a = b = 1 + 2 * 3 < 5 && 10 || 0; }")
 
-def test_parser_056():
-    """Complete for loop"""
-    test_valid("void main() { for (int i = 0; i < 10; i++) { } }")
+def test_extreme_021():
+    """Logical OR > logical AND"""
+    test_valid("void main() { auto x = 1 && 2 || 3 && 4; }")
 
+def test_extreme_022():
+    """Equality > relational"""
+    test_valid("void main() { auto x = 1 < 2 == 3 > 4; }")
 
-def test_parser_057():
-    """For with empty init"""
-    test_valid("void main() { for (; i < 10; i++) { } }")
+def test_extreme_023():
+    """Additive > multiplicative"""
+    test_valid("void main() { auto x = 1 + 2 * 3 - 4 / 5; }")
 
+def test_extreme_024():
+    """Unary minus on plus"""
+    test_valid("void main() { auto x = -+5; }")
 
-def test_parser_058():
-    """For with empty condition"""
-    test_valid("void main() { for (int i = 0; ; i++) { } }")
+def test_extreme_025():
+    """Double logical NOT"""
+    test_valid("void main() { auto x = !!5; }")
 
+def test_extreme_026():
+    """Assignment in condition"""
+    test_valid("void main() { int x; if ((x = 5) > 0) { } }")
 
-def test_parser_059():
-    """For with empty update"""
-    test_valid("void main() { for (int i = 0; i < 10; ) { } }")
+def test_extreme_027():
+    """Assignment in while condition"""
+    test_valid("void main() { int x; while ((x = getVal()) > 0) { } }")
 
+def test_extreme_028():
+    """Assignment in for condition"""
+    test_valid("void main() { int x; for (; (x = f()) < 10; ) { } }")
 
-def test_parser_060():
-    """For with all empty (infinite loop)"""
-    test_valid("void main() { for (; ; ) { } }")
+def test_extreme_029():
+    """Chained relational operators (left associative)"""
+    test_valid("void main() { auto x = 1 < 2 < 3; }")  # ((1 < 2) < 3)
 
+def test_extreme_030():
+    """Chained equality operators"""
+    test_valid("void main() { auto x = 1 == 2 != 3 == 4; }")
 
-def test_parser_061():
-    """For with auto init"""
-    test_valid("void main() { for (auto i = 0; i < 10; i++) { } }")
+def test_extreme_031():
+    """Mixed arithmetic operators"""
+    test_valid("void main() { auto x = 1 + 2 - 3 * 4 / 5 % 2; }")
 
-
-def test_parser_062():
-    """For without type in init"""
-    test_valid("void main() { for (i = 0; i < 10; i++) { } }")
-
-
-def test_parser_063():
-    """For without braces"""
-    test_valid("void main() { for (int i = 0; i < 10; i++) printInt(i); }")
-
-
-def test_parser_064():
-    """Nested for loops"""
-    test_valid("""
+def test_extreme_032():
+    """Postfix on function call result followed by member access - INVALID"""
+    test_invalid("""
+        struct S { int x; };
+        S f() { return {5}; }
         void main() {
-            for (int i = 0; i < 10; i++) {
-                for (int j = 0; j < 10; j++) {
-                    printInt(i + j);
-                }
-            }
+            f()++.x;
         }
     """)
 
-
-def test_parser_065():
-    """For missing semicolon - should fail"""
-    test_invalid("void main() { for (int i = 0 i < 10; i++) { } }")
-
-
-# ============================================================================
-# SWITCH STATEMENT TESTS (10 tests)
-# ============================================================================
-
-def test_parser_066():
-    """Simple switch statement"""
-    test_valid("void main() { switch (1) { case 1: break; } }")
-
-
-def test_parser_067():
-    """Switch with default"""
-    test_valid("void main() { switch (1) { case 1: break; default: break; } }")
-
-
-def test_parser_068():
-    """Switch with multiple cases"""
+def test_extreme_033():
+    """Member access on function call result"""
     test_valid("""
+        struct S { int x; };
+        S f() { return {5}; }
         void main() {
-            switch (x) {
-                case 1: printInt(1); break;
-                case 2: printInt(2); break;
-                case 3: printInt(3); break;
-            }
+            auto v = f().x;
         }
     """)
 
+def test_extreme_034():
+    """Postfix on member of function result"""
+    test_valid("""
+        struct S { int x; };
+        S f() { return {5}; }
+        void main() {
+            f().x++;
+        }
+    """)
 
-def test_parser_069():
-    """Switch with fall-through"""
+def test_extreme_035():
+    """Complex precedence chain"""
+    test_valid("""
+        struct S { int v; };
+        void main() {
+            S s;
+            int a, b;
+            a = s.v++ * -b + !a < 10 && 5 || b;
+        }
+    """)
+
+# ============================================================================
+# GROUP 3: NESTED STRUCTURES (10 tests)
+# Testing deep nesting limits
+# ============================================================================
+
+def test_extreme_036():
+    """Deeply nested if-else (dangling else problem)"""
     test_valid("""
         void main() {
-            switch (x) {
+            if (1) if (2) if (3) x = 1; else y = 2; else z = 3;
+        }
+    """)
+
+def test_extreme_037():
+    """Deeply nested blocks"""
+    test_valid("""
+        void main() {
+            { { { { { { { { int x; } } } } } } } }
+        }
+    """)
+
+def test_extreme_038():
+    """Nested switch in switch in switch"""
+    test_valid("""
+        void main() {
+            switch(a) {
                 case 1:
-                case 2:
-                    printInt(2);
-                    break;
-            }
-        }
-    """)
-
-
-def test_parser_070():
-    """Switch with empty case"""
-    test_valid("void main() { switch (x) { case 1: } }")
-
-
-def test_parser_071():
-    """Switch case with expression"""
-    test_valid("void main() { switch (x) { case 1+2: break; case -5: break; } }")
-
-
-def test_parser_072():
-    """Switch with empty body"""
-    test_valid("void main() { switch (x) { } }")
-
-
-def test_parser_073():
-    """Switch with only default"""
-    test_valid("void main() { switch (x) { default: break; } }")
-
-
-def test_parser_074():
-    """Nested switch"""
-    test_valid("""
-        void main() {
-            switch (x) {
-                case 1:
-                    switch (y) {
-                        case 2: break;
+                    switch(b) {
+                        case 2:
+                            switch(c) {
+                                case 3: break;
+                            }
+                            break;
                     }
                     break;
             }
         }
     """)
 
+def test_extreme_039():
+    """Nested for in while in for"""
+    test_valid("""
+        void main() {
+            for (;;) {
+                while (1) {
+                    for (int i = 0; i < 10; i++) {
+                        break;
+                    }
+                }
+            }
+        }
+    """)
 
-def test_parser_075():
-    """Switch case without colon - should fail"""
+def test_extreme_040():
+    """Deeply nested parentheses"""
+    test_valid("void main() { auto x = ((((((1 + 2) * 3) / 4) - 5) % 6)); }")
+
+def test_extreme_041():
+    """Deeply nested member access"""
+    test_valid("""
+        struct E { int val; };
+        struct D { E e; };
+        struct C { D d; };
+        struct B { C c; };
+        struct A { B b; };
+        void main() {
+            A a;
+            a.b.c.d.e.val = 42;
+        }
+    """)
+
+def test_extreme_042():
+    """Deeply nested function calls"""
+    test_valid("void main() { f(g(h(i(j(k(l(m()))))))); }")
+
+def test_extreme_043():
+    """Nested struct literals"""
+    test_valid("""
+        struct Inner { int x; int y; };
+        struct Outer { Inner i; int z; };
+        void main() {
+            Outer o = {{1, 2}, 3};
+        }
+    """)
+
+def test_extreme_044():
+    """Mixed deep nesting"""
+    test_valid("""
+        void main() {
+            {
+                for (;;) {
+                    {
+                        while (1) {
+                            {
+                                if (x) {
+                                    {
+                                        switch (y) {
+                                            case 1: { int z; } break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    """)
+
+def test_extreme_045():
+    """Deep expression nesting in all operator levels"""
+    test_valid("""
+        void main() {
+            auto x = (a = (b || (c && (d == (e < (f + (g * (h++)))))))); 
+        }
+    """)
+
+# ============================================================================
+# GROUP 4: FOR LOOP EDGE CASES (10 tests)
+# Testing complex for loop variations
+# ============================================================================
+
+def test_extreme_046():
+    """For with comma-separated multiple inits"""
+    test_valid("void main() { for (int x = 0, y = 10; x < y; x++, y--) { } }")
+
+def test_extreme_047():
+    """For with all parts empty"""
+    test_valid("void main() { for (;;) { } }")
+
+def test_extreme_048():
+    """For with assignment init (no type)"""
+    test_valid("void main() { for (x = 0; x < 10; x++) { } }")
+
+def test_extreme_049():
+    """For with auto init"""
+    test_valid("void main() { for (auto i = 0; i < 10; i++) { } }")
+
+def test_extreme_050():
+    """For with complex init expression"""
+    test_valid("void main() { for (int x = f(g(h())); x < 10; x++) { } }")
+
+def test_extreme_051():
+    """For with complex condition"""
+    test_valid("void main() { for (int i = 0; i < n && j > 0; i++) { } }")
+
+def test_extreme_052():
+    """For with complex update"""
+    test_valid("void main() { for (int i = 0; i < 10; i = i * 2 + 1) { } }")
+
+def test_extreme_053():
+    """For with multiple updates separated by comma"""
+    test_valid("void main() { for (int i = 0; i < 10; i++, j--, k = k * 2) { } }")
+
+def test_extreme_054():
+    """For init with multiple declarations separated by comma"""
+    test_valid("void main() { for (int a = 1, b = 2, c = 3; a < 10; a++) { } }")
+
+def test_extreme_055():
+    """For with wrong separator - semicolon instead of comma - INVALID"""
+    test_invalid("void main() { for (int i = 0; i < 10; i++) { } }")
+
+# ============================================================================
+# GROUP 5: SWITCH STATEMENT EDGE CASES (10 tests)
+# Testing switch variations and edge cases
+# ============================================================================
+
+def test_extreme_056():
+    """Switch with no cases or default"""
+    test_valid("void main() { switch (x) { } }")
+
+def test_extreme_057():
+    """Switch with only default"""
+    test_valid("void main() { switch (x) { default: break; } }")
+
+def test_extreme_058():
+    """Switch with case expression (not just literal)"""
+    test_valid("void main() { switch (x) { case 1 + 2 * 3: break; } }")
+
+def test_extreme_059():
+    """Switch with negative case"""
+    test_valid("void main() { switch (x) { case -5: break; } }")
+
+def test_extreme_060():
+    """Switch with parenthesized case value"""
+    test_valid("void main() { switch (x) { case (5): break; } }")
+
+def test_extreme_061():
+    """Switch with fall-through cases"""
+    test_valid("""
+        void main() {
+            switch (x) {
+                case 1:
+                case 2:
+                case 3:
+                    y = 10;
+                    break;
+            }
+        }
+    """)
+
+def test_extreme_062():
+    """Switch with empty case"""
+    test_valid("void main() { switch (x) { case 1: } }")
+
+def test_extreme_063():
+    """Switch case without colon - INVALID"""
     test_invalid("void main() { switch (x) { case 1 break; } }")
 
-
-# ============================================================================
-# EXPRESSION TESTS (15 tests)
-# ============================================================================
-
-def test_parser_076():
-    """Arithmetic expressions"""
-    test_valid("void main() { auto x = 1 + 2 - 3 * 4 / 5 % 2; }")
-
-
-def test_parser_077():
-    """Comparison expressions"""
-    test_valid("void main() { auto x = 1 < 2 && 3 > 4 || 5 <= 6 && 7 >= 8; }")
-
-
-def test_parser_078():
-    """Logical expressions"""
-    test_valid("void main() { auto x = 1 && 2 || !3; }")
-
-
-def test_parser_079():
-    """Increment and decrement"""
-    test_valid("void main() { int x; --x; x++; --x; x--; }")
-
-
-def test_parser_080():
-    """Unary operators"""
-    test_valid("void main() { auto x = -5; auto y = +3; auto z = !0; }")
-
-
-def test_parser_081():
-    """Parenthesized expressions"""
-    test_valid("void main() { auto x = (1 + 2) * (3 - 4); }")
-
-
-def test_parser_082():
-    """Member access"""
+def test_extreme_064():
+    """Switch with default before cases"""
     test_valid("""
-        struct Point { int x; int y; };
         void main() {
-            Point p = {1, 2};
-            auto a = p.x;
-            auto b = p.y;
+            switch (x) {
+                default: x = 0; break;
+                case 1: x = 1; break;
+            }
         }
     """)
 
-
-def test_parser_083():
-    """Nested member access"""
-    test_valid("""
-        struct Inner { int value; };
-        struct Outer { Inner inner; };
+def test_extreme_065():
+    """Switch with multiple defaults - INVALID (grammar might allow but semantically wrong)"""
+    test_invalid("""
         void main() {
-            Outer o;
-            auto x = o.inner.value;
+            switch (x) {
+                default: break;
+                default: break;
+            }
         }
     """)
 
+# ============================================================================
+# GROUP 6: EXPRESSION vs STATEMENT DISAMBIGUATION (10 tests)
+# Testing cases where grammar might be ambiguous
+# ============================================================================
 
-def test_parser_084():
-    """Function call"""
+def test_extreme_066():
+    """ID() - function call statement"""
+    test_valid("void main() { f(); }")
+
+def test_extreme_067():
+    """ID.ID - member access as expression statement"""
     test_valid("""
-        int getValue() { return 42; }
-        void main() { auto x = getValue(); }
+        struct S { int x; };
+        void main() {
+            S s;
+            s.x;
+        }
     """)
 
+def test_extreme_068():
+    """ID.ID() - member function call"""
+    test_valid("void main() { obj.method(); }")
 
-def test_parser_085():
-    """Function call with arguments"""
+def test_extreme_069():
+    """ID++ - postfix as statement"""
+    test_valid("void main() { int x; x++; }")
+
+def test_extreme_070():
+    """++ID - prefix as statement"""
+    test_valid("void main() { int x; ++x; }")
+
+def test_extreme_071():
+    """ID = expr - assignment statement"""
+    test_valid("void main() { int x; x = 5; }")
+
+def test_extreme_072():
+    """(expr) - parenthesized expression as statement"""
+    test_valid("void main() { (1 + 2); }")
+
+def test_extreme_073():
+    """Struct literal as statement - INVALID"""
+    test_invalid("void main() { {1, 2, 3}; }")
+
+def test_extreme_074():
+    """Assignment to rvalue - INVALID"""
+    test_invalid("void main() { 5 = x; }")
+
+def test_extreme_075():
+    """Member access on literal - INVALID"""
+    test_invalid("void main() { 5.x; }")
+
+# ============================================================================
+# GROUP 7: STRUCT LITERAL EDGE CASES (10 tests)
+# Testing struct literal variations
+# ============================================================================
+
+def test_extreme_076():
+    """Empty struct literal"""
     test_valid("""
-        int add(int a, int b, int c) { return a + b + c; }
-        void main() { auto x = add(3, 5, 7); }
+        struct Empty {};
+        void main() {
+            Empty e = {};
+        }
     """)
 
-
-def test_parser_086():
-    """Struct literal"""
+def test_extreme_077():
+    """Struct literal with expressions"""
     test_valid("""
         struct Point { int x; int y; };
-        void main() { Point p = {10, 20}; }
+        void main() {
+            Point p = {1 + 2, 3 * 4};
+        }
     """)
 
+def test_extreme_078():
+    """Struct literal with function calls"""
+    test_valid("""
+        struct Point { int x; int y; };
+        void main() {
+            Point p = {f(), g()};
+        }
+    """)
 
-def test_parser_087():
-    """Complex precedence"""
-    test_valid("void main() { auto x = 1 + 2 * 3 < 4 && 5 || !6; }")
+def test_extreme_079():
+    """Nested struct literals"""
+    test_valid("""
+        struct Inner { int a; int b; };
+        struct Outer { Inner i; int c; };
+        void main() {
+            Outer o = {{1, 2}, 3};
+        }
+    """)
 
+def test_extreme_080():
+    """Triple-nested struct literals"""
+    test_valid("""
+        struct A { int x; };
+        struct B { A a; };
+        struct C { B b; };
+        void main() {
+            C c = {{{5}}};
+        }
+    """)
 
-def test_parser_088():
-    """Chained assignment"""
-    test_valid("void main() { int a, b, c; a = b = c = 5; }")
+def test_extreme_081():
+    """Struct literal in function argument"""
+    test_valid("""
+        struct Point { int x; int y; };
+        void f(Point p) { }
+        void main() {
+            f({5, 10});
+        }
+    """)
 
+def test_extreme_082():
+    """Struct literal in return statement"""
+    test_valid("""
+        struct Point { int x; int y; };
+        Point getPoint() {
+            return {5, 10};
+        }
+    """)
 
-def test_parser_089():
-    """Assignment in expression"""
-    test_valid("void main() { int x, y; y = (x = 5) + 7; }")
+def test_extreme_083():
+    """Struct literal with complex nested expressions"""
+    test_valid("""
+        struct Point { int x; int y; };
+        void main() {
+            Point p = {a + b * c, (d = e) + f};
+        }
+    """)
 
-
-def test_parser_090():
-    """Member access with postfix"""
+def test_extreme_084():
+    """Struct literal with too many initializers (parser allows, semantic error)"""
     test_valid("""
         struct Point { int x; };
         void main() {
-            Point p;
-            p.x = 10;
-            ++p.x;
+            Point p = {1, 2, 3, 4, 5};
         }
     """)
 
+def test_extreme_085():
+    """Struct literal with too few initializers"""
+    test_valid("""
+        struct Point { int x; int y; int z; };
+        void main() {
+            Point p = {1};
+        }
+    """)
 
 # ============================================================================
-# COMPLEX/INTEGRATION TESTS (5 tests)
+# GROUP 8: SUBTLE SYNTAX ERRORS (10 tests)
+# Testing cases that should fail parsing
 # ============================================================================
 
-def test_parser_091():
-    """Factorial function"""
+def test_extreme_086():
+    """Empty statement (single semicolon) - INVALID per spec"""
+    test_invalid("void main() { ; }")
+
+def test_extreme_087():
+    """Multiple semicolons - INVALID"""
+    test_invalid("void main() { ;; }")
+
+def test_extreme_088():
+    """Missing semicolon after statement"""
+    test_invalid("void main() { int x = 5 }")
+
+def test_extreme_089():
+    """Missing closing brace"""
+    test_invalid("void main() { int x = 5;")
+
+def test_extreme_090():
+    """Mismatched braces"""
+    test_invalid("void main() { { int x; }")
+
+def test_extreme_091():
+    """Invalid operator sequence"""
+    test_invalid("void main() { auto x = 5 ++ 2; }")
+
+def test_extreme_092():
+    """Function call without closing paren"""
+    test_invalid("void main() { f(1, 2; }")
+
+def test_extreme_093():
+    """Case without colon"""
+    test_invalid("void main() { switch(x) { case 1 break; } }")
+
+def test_extreme_094():
+    """If without condition"""
+    test_invalid("void main() { if () { } }")
+
+def test_extreme_095():
+    """While without condition"""
+    test_invalid("void main() { while () { } }")
+
+# ============================================================================
+# GROUP 9: COMPLEX REAL-WORLD SCENARIOS (5 tests)
+# Testing realistic complex code
+# ============================================================================
+
+def test_extreme_096():
+    """Recursive factorial with all statement types"""
     test_valid("""
         int factorial(int n) {
             if (n <= 1) {
                 return 1;
-            } else {
-                return n * factorial(n - 1);
             }
+            auto result = n * factorial(n - 1);
+            return result;
         }
         void main() {
-            auto result = factorial(5);
+            int x = factorial(5);
         }
     """)
 
-
-def test_parser_092():
-    """Loop with calculations"""
+def test_extreme_097():
+    """Complex nested control flow"""
     test_valid("""
         void main() {
-            int sum = 0;
-            for (int i = 1; i <= 10; i++) {
-                sum = sum + i;
-                if (sum > 30) break;
+            for (int i = 0; i < 10; i++) {
+                while (j < i) {
+                    switch (k) {
+                        case 1:
+                            if (m) {
+                                for (auto n = 0; n < 5; n++) {
+                                    if (p) break;
+                                    else continue;
+                                }
+                            } else {
+                                while (q) {
+                                    if (r) break;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    j++;
+                }
             }
         }
     """)
 
-
-def test_parser_093():
-    """Struct operations"""
+def test_extreme_098():
+    """Complex struct operations"""
     test_valid("""
         struct Point { int x; int y; };
+        struct Line { Point start; Point end; };
         
-        Point createPoint(int x, int y) {
-            return {x, y};
+        Point midpoint(Line l) {
+            return {(l.start.x + l.end.x) / 2, (l.start.y + l.end.y) / 2};
         }
         
         void main() {
-            Point p1 = createPoint(10, 20);
-            Point p2;
-            p2 = p1;
-            p2.x = p2.x + 5;
+            Line line = {{0, 0}, {10, 10}};
+            Point mid = midpoint(line);
+            mid.x++;
+            auto val = mid.x + mid.y;
         }
     """)
 
-
-def test_parser_094():
-    """All statement types"""
+def test_extreme_099():
+    """Complex expression with all operators"""
     test_valid("""
+        struct S { int v; };
         void main() {
-            int x = 0;
+            S s, t;
+            int a, b, c, d;
+            auto result = (a = s.v++ * -b + !c < d) && (t.v-- / +a > b) || !(--c == ++d);
+        }
+    """)
+
+def test_extreme_100():
+    """All features combined in realistic code"""
+    test_valid("""
+        struct Node { int data; Node next; };
+        
+        Node createNode(int val) {
+            Node n;
+            n.data = val;
+            return n;
+        }
+        
+        void main() {
+            auto head = createNode(1);
             
-            if (x == 0) {
-                x = 1;
+            for (int i = 2; i <= 10; i++) {
+                Node current = head;
+                while (current.next.data != 0) {
+                    current = current.next;
+                }
+                current.next = createNode(i);
             }
             
-            while (x < 10) {
-                x++;
+            int sum = 0;
+            Node iter = head;
+            while (iter.data != 0) {
+                sum = sum + iter.data;
+                iter = iter.next;
+                if (sum > 100) break;
             }
             
-            for (int i = 0; i < 5; i++) {
-                x = x + i;
-            }
-            
-            switch (x) {
+            switch (sum) {
+                case 0:
                 case 10:
+                case 20:
+                    printInt(sum);
                     break;
                 default:
-                    x = 0;
+                    printString("Other value");
                     break;
             }
-            
-            return;
         }
-    """)
-
-
-def test_parser_095():
-    """Complex expressions with all operators"""
-    test_valid("""
-        struct Point { int x; };
-        int getValue() { return 5; }
-        void main() {
-            Point p = {5};
-            auto result = p.x++ + getValue() * 2 < 10 && 1 || !0;
-        }
-    """)
-
-
-# ============================================================================
-# ERROR/EDGE CASE TESTS (5 tests)
-# ============================================================================
-
-def test_parser_096():
-    """Missing brace - should fail"""
-    test_invalid("void main() { int x = 5;")
-
-
-def test_parser_097():
-    """Mismatched braces - should fail"""
-    test_invalid("void main() { if (1) { }")
-
-
-def test_parser_098():
-    """Invalid expression - should fail"""
-    test_invalid("void main() { int x = + * 5; }")
-
-
-def test_parser_099():
-    """Incomplete struct - should fail"""
-    test_invalid("struct Point {")
-
-
-def test_parser_100():
-    """Empty parameter (just comma) - should fail"""
-    test_invalid("int add(int a, , int b) { return 0; }")
-
-def test_demo_1():
-    test_valid("""
-        void main() {
-            int x,y;
-        }        
-    """)
-
-def test_demo_2():
-    test_valid("""
-        void main() { auto x; x = 5; }       
     """)
